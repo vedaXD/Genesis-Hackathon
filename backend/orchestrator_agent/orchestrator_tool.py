@@ -66,7 +66,7 @@ class OrchestratorTool(BaseTool):
                 image_result = self._generate_images(
                     script_result.get("script"),
                     sustainability_analysis.get("theme"),
-                    num_images=3  # 3 premium images with GCP credits
+                    num_images=5  # 5 images for 15 second reel (3s each)
                 )
                 pipeline_result["stages"]["image_generation"] = image_result
                 pipeline_result["image_paths"] = image_result.get("image_paths", [])
@@ -181,7 +181,7 @@ class OrchestratorTool(BaseTool):
         
         return voice_result
     
-    def _generate_images(self, script: str, theme: str, num_images: int = 3) -> dict:
+    def _generate_images(self, script: str, theme: str, num_images: int = 5) -> dict:
         """Stage 3.5: Generate AI images for the video."""
         from sub_agents.image_agent.imagen_generator_tool import ImagenGeneratorTool
         

@@ -30,14 +30,14 @@ class ImagenGeneratorTool(BaseTool):
             self.model = None
             self.model_name = None
     
-    def run(self, script: str, theme: str, num_images: int = 3) -> dict:
+    def run(self, script: str, theme: str, num_images: int = 5) -> dict:
         """
         Generate AI images based on script and theme.
         
         Args:
             script: The story script to base images on
             theme: Sustainability theme (heat, water, air, sustainability)
-            num_images: Number of images to generate (default: 3)
+            num_images: Number of images to generate (default: 5)
             
         Returns:
             Dictionary with list of image paths
@@ -57,10 +57,10 @@ class ImagenGeneratorTool(BaseTool):
                 if not self.model:
                     raise Exception("Imagen model not initialized. Check GCP credentials and Vertex AI setup.")
                 
-                # Add delay between requests to respect rate limits (except first image)
-                if i > 0:
+                # Add delay after 2nd image (first 2 are quick, then rate limited)
+                if i >= 2:
                     print(f"    ⏱️  Waiting 60s to respect API rate limits...")
-                    time.sleep(30)
+                    time.sleep(60)
                 
                 # Generate with Imagen - premium quality with GCP credits
                 print(f"    Generating image {i+1}/{num_images}...")
@@ -94,11 +94,13 @@ class ImagenGeneratorTool(BaseTool):
         
         base_style = theme_styles.get(theme, "nature, environmental awareness, hopeful atmosphere")
         
-        # Create diverse prompts for different scenes
+        # Create diverse prompts for 5 different scenes (3 seconds each = 15 second reel)
         prompts = [
             f"A beautiful cinematic scene showing {base_style}, community connection, hope for future, photorealistic, 9:16 vertical format, high quality",
             f"Environmental awareness visual with {base_style}, people caring for nature, peaceful atmosphere, photorealistic, 9:16 vertical format, high quality",
-            f"Inspiring sustainability scene with {base_style}, positive environmental action, bright natural lighting, photorealistic, 9:16 vertical format, high quality"
+            f"Inspiring sustainability scene with {base_style}, positive environmental action, bright natural lighting, photorealistic, 9:16 vertical format, high quality",
+            f"Close-up nature detail with {base_style}, environmental beauty, natural textures, photorealistic, 9:16 vertical format, high quality",
+            f"Hopeful future vision with {base_style}, sustainable living, harmony between humans and nature, photorealistic, 9:16 vertical format, high quality"
         ]
         
         return prompts[:num_images]

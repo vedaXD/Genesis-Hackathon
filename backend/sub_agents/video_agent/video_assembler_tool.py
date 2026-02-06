@@ -60,11 +60,11 @@ class VideoAssemblerTool(BaseTool):
         audio = AudioFileClip(audio_path)
         total_duration = audio.duration
         
-        # 3 images @ 5 seconds each = 15 second reel
+        # Fixed 15 second reel: 5 images @ 3 seconds each
         num_images = len(image_paths)
-        duration_per_image = 5.0  # 5 seconds per premium AI image
+        duration_per_image = 3.0  # 3 seconds per image (5 images × 3s = 15s)
         
-        print(f"    Creating {num_images} premium image clips (5s each for 15s total)...")
+        print(f"    Creating {num_images} premium image clips (3s each for 15s total)...")
         
         # Create image clips
         clips = []

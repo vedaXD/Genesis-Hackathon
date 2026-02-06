@@ -8,7 +8,7 @@ API_URL = "http://localhost:8000/api/generate-story"
 # Test request for Mumbai
 test_data = {
     "location": "Mumbai",
-    "theme": "water"
+    "theme": "heat"
 }
 
 print("🎬 Testing Sustainability Story Generation")
