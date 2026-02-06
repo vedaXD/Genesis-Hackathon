@@ -57,9 +57,10 @@ class ImagenGeneratorTool(BaseTool):
                 if not self.model:
                     raise Exception("Imagen model not initialized. Check GCP credentials and Vertex AI setup.")
                 
-                # Add delay after 2nd image (first 2 are quick, then rate limited)
-                if i >= 2:
-                    print(f"    ⏱️  Waiting 60s to respect API rate limits...")
+                # Wait after every 2 images (rate limit allows 2 per minute)
+                # Image 0,1 -> quick | Wait 60s | Image 2,3 -> quick | Wait 60s | Image 4 -> quick
+                if i > 0 and i % 2 == 0:
+                    print(f"    ⏱️  Waiting 60s (rate limit: 2 images/minute)...")
                     time.sleep(60)
                 
                 # Generate with Imagen - premium quality with GCP credits
