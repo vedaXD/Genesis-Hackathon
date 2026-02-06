@@ -46,7 +46,7 @@ export function ReelCard({ reel, isActive }: ReelCardProps) {
     if (isActive) {
       // Try to play when active
       const playPromise = video.play();
-      
+
       if (playPromise !== undefined) {
         playPromise
           .then(() => {

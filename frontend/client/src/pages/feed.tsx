@@ -143,14 +143,14 @@ export default function FeedPage() {
     const hasOnboarded = localStorage.getItem("hasOnboarding");
     const savedPoints = parseInt(localStorage.getItem("userPoints") || "0");
     setUserPoints(savedPoints);
-    
+
     if (hasOnboarded) {
       setShowOnboarding(false);
       const savedLocation = localStorage.getItem("userLocation") || "India";
       const savedInterest = localStorage.getItem("userInterest") || "gym";
       setUserLocation(savedLocation);
       setUserInterest(savedInterest);
-      
+
       // Load mock content immediately if user has already onboarded
       if (mockReels && mockReels.length > 0) {
         const mixedContent = createMixedContent([], mockReels);
@@ -209,17 +209,17 @@ export default function FeedPage() {
           const index = parseInt(
             entry.target.getAttribute("data-index") || "0",
           );
-          
+
           // Set active when reel is more than 50% visible
           if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
             setActiveIndex(index);
           }
         });
       },
-      { 
+      {
         threshold: [0, 0.5, 1],
         root: null, // Use viewport as root
-        rootMargin: "0px"
+        rootMargin: "0px",
       },
     );
 
@@ -292,7 +292,7 @@ export default function FeedPage() {
           <span className="font-black text-lg">{userPoints} Points</span>
         </div>
       )}
-      
+
       <div
         ref={containerRef}
         className="h-full w-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"
@@ -453,7 +453,7 @@ function createMixedContent(generatedReels: any[], mockReels: any[]) {
   // Pattern: 1-2 reels, then quiz or challenge (alternate between them)
   let contentCounter = 0;
   const maxIterations = mockReels.length + quizzes.length + challenges.length;
-  
+
   while (contentCounter < maxIterations) {
     // Add 1-2 reels
     const reelsToAdd = Math.floor(Math.random() * 2) + 1; // 1 or 2
