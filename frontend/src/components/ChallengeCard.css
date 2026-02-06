@@ -1,0 +1,354 @@
+.challenge-card {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  animation: slideUp 0.5s ease-out;
+  overflow: hidden;
+}
+
+.challenge-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.challenge-emoji {
+  position: absolute;
+  font-size: 3rem;
+  animation: floatEmoji 3s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+.challenge-emoji-1 {
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.challenge-emoji-2 {
+  top: 20%;
+  right: 15%;
+  animation-delay: 0.5s;
+}
+
+.challenge-emoji-3 {
+  bottom: 20%;
+  left: 15%;
+  animation-delay: 1s;
+}
+
+.challenge-emoji-4 {
+  bottom: 10%;
+  right: 10%;
+  animation-delay: 1.5s;
+}
+
+@keyframes floatEmoji {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+.challenge-content {
+  position: relative;
+  z-index: 2;
+  background: white;
+  border: 6px solid black;
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 12px 12px 0px rgba(0, 0, 0, 1);
+  transform: rotate(-1deg);
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(-1deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-1deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-1deg);
+  }
+}
+
+.challenge-icon-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.challenge-icon-box {
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 5px solid black;
+  border-radius: 50%;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+  transform: rotate(5deg);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: rotate(5deg) scale(1);
+  }
+  50% {
+    transform: rotate(5deg) scale(1.1);
+  }
+}
+
+.challenge-icon {
+  font-size: 3rem;
+  display: block;
+}
+
+.challenge-title-box {
+  background: #fffacd;
+  border: 4px solid black;
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+  transform: rotate(1deg);
+}
+
+.challenge-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: #000;
+  line-height: 1.2;
+}
+
+.challenge-desc {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.challenge-points {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ff4500;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 3px solid black;
+  border-radius: 10px;
+  display: inline-block;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+}
+
+.challenge-upload {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border: 5px solid black;
+  border-radius: 15px;
+  padding: 2.5rem 2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+  text-align: center;
+}
+
+.challenge-upload:hover {
+  transform: translate(-2px, -2px) rotate(-1deg);
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
+}
+
+.challenge-upload:active {
+  transform: translate(2px, 2px) rotate(-1deg);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+}
+
+.upload-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.upload-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: white;
+  -webkit-text-stroke: 2px black;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  font-size: 1rem;
+  color: white;
+  font-weight: 600;
+}
+
+.upload-input {
+  display: none;
+}
+
+.challenge-completed {
+  animation: slideUp 0.5s ease-out;
+}
+
+.uploaded-image-container {
+  position: relative;
+  border: 5px solid black;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+}
+
+.uploaded-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.completion-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #00ff00;
+  color: black;
+  font-weight: 800;
+  padding: 0.75rem 1.5rem;
+  border: 4px solid black;
+  border-radius: 10px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.share-section {
+  background: #e0f7fa;
+  border: 4px solid black;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+}
+
+.share-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.share-button {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: 4px solid black;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+}
+
+.share-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+}
+
+.share-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+}
+
+.share-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  animation: slideUp 0.3s ease-out;
+}
+
+.share-option {
+  padding: 0.75rem;
+  background: white;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 3px solid black;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 1);
+}
+
+.share-option:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px rgba(0, 0, 0, 1);
+  background: #f0f0f0;
+}
+
+.share-option:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+}
+
+.retake-button {
+  width: 100%;
+  padding: 1rem;
+  background: #ffeb3b;
+  color: black;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 4px solid black;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1);
+}
+
+.retake-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+}
+
+.retake-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 1);
+}

@@ -1,0 +1,127 @@
+.reel-card {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: #000;
+}
+
+.reel-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  pointer-events: none;
+}
+
+.play-pause-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 4px solid black;
+  border-radius: 50%;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-pause-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: white;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.play-pause-btn:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.reel-actions {
+  position: absolute;
+  right: 1rem;
+  bottom: 10rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 10;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid black;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.action-btn:hover {
+  transform: scale(1.15) rotate(5deg);
+  background: white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.action-icon {
+  font-size: 1.5rem;
+  display: block;
+}
+
+.action-text {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: black;
+  margin-top: 0.1rem;
+}
+
+.reel-info {
+  position: absolute;
+  bottom: 2rem;
+  left: 1rem;
+  right: 5rem;
+  z-index: 10;
+  color: white;
+}
+
+.reel-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.reel-desc {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}

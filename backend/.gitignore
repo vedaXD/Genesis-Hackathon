@@ -78,10 +78,7 @@ data/*.json
 !data/claims_db.json
 
 # Generated media files
-data/audio/*
-data/videos/*
-data/uploads/*
-data/video_assets/*
+
 # But keep the folder structure
 !data/audio/.gitkeep
 !data/videos/.gitkeep
