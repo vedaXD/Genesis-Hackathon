@@ -10,7 +10,7 @@ const reelMilestones = [
     progress: 0,
     title: "TODAY'S STORY",
     description: "Generate reels of thriving ecosystems",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    videoUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
     color: "#10b981",
     icon: "🌱"
   },
@@ -19,7 +19,7 @@ const reelMilestones = [
     progress: 0.33,
     title: "WARNING SIGNS",
     description: "AI reels showing early climate impacts",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    videoUrl: "https://www.youtube.com/watch?v=EtW2rrLHs08",
     color: "#fbbf24",
     icon: "⚠️"
   },
@@ -28,7 +28,7 @@ const reelMilestones = [
     progress: 0.66,
     title: "CRISIS POINT",
     description: "Generate awareness through local stories",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    videoUrl: "https://www.youtube.com/watch?v=ipVxxxqwBQw",
     color: "#f97316",
     icon: "🔥"
   },
@@ -37,7 +37,7 @@ const reelMilestones = [
     progress: 1,
     title: "FINAL WARNING",
     description: "AI-powered climate action narratives",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    videoUrl: "https://www.youtube.com/watch?v=PEMwlKMjXOk",
     color: "#ef4444",
     icon: "🌊"
   }
@@ -98,6 +98,18 @@ const ClimateHome = () => {
     setShowVideo(true);
   };
 
+  const handleNextVideo = () => {
+    const currentIndex = reelMilestones.findIndex(m => m.year === currentVideo.year);
+    const nextIndex = (currentIndex + 1) % reelMilestones.length;
+    setCurrentVideo(reelMilestones[nextIndex]);
+  };
+
+  const handlePrevVideo = () => {
+    const currentIndex = reelMilestones.findIndex(m => m.year === currentVideo.year);
+    const prevIndex = (currentIndex - 1 + reelMilestones.length) % reelMilestones.length;
+    setCurrentVideo(reelMilestones[prevIndex]);
+  };
+
   const jumpToMilestone = (targetProgress) => {
     scrollRef.current = targetProgress;
     setScrollProgress(targetProgress);
@@ -137,6 +149,25 @@ const ClimateHome = () => {
             >
               ✕ CLOSE
             </button>
+
+            {/* Previous Button */}
+            <button
+              onClick={handlePrevVideo}
+              className='absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 px-6 py-8 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all duration-200 rounded-xl z-10'
+            >
+              <span className='text-3xl'>←</span>
+              <p className='text-xs mt-1'>PREV</p>
+            </button>
+
+            {/* Next Button */}
+            <button
+              onClick={handleNextVideo}
+              className='absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 px-6 py-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:translate-y-1 transition-all duration-200 rounded-xl z-10'
+            >
+              <span className='text-3xl'>→</span>
+              <p className='text-xs mt-1'>NEXT</p>
+            </button>
+
             <div className='bg-gradient-to-br from-gray-800 to-gray-900 border-4 border-white shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] rounded-2xl overflow-hidden'>
               <div className='bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 border-b-4 border-white'>
                 <h2 className='text-2xl font-black text-white flex items-center gap-3'>
