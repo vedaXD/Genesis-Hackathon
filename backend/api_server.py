@@ -57,6 +57,7 @@ class StoryResponse(BaseModel):
     video_path: Optional[str] = None
     script_text: Optional[str] = None
     audio_path: Optional[str] = None
+    image_paths: Optional[list] = None
     theme: Optional[str] = None
     location: str
     error: Optional[str] = None
@@ -133,6 +134,7 @@ async def generate_story(request: StoryRequest):
             video_path=result.get("final_video_path"),
             script_text=result.get("script_text"),
             audio_path=result.get("audio_path"),
+            image_paths=result.get("image_paths", []),
             theme=result.get("stages", {}).get("sustainability_analysis", {}).get("theme"),
             location=request.location
         )

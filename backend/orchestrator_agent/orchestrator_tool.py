@@ -28,12 +28,14 @@ class OrchestratorTool(BaseTool):
                 "location_data": None,
                 "sustainability_analysis": None,
                 "script_generation": None,
+                "image_generation": None,
                 "voice_generation": None,
                 "video_assembly": None
             },
             "final_video_path": None,
             "script_text": None,
             "audio_path": None,
+            "image_paths": None,
             "success": False
         }
         
@@ -58,6 +60,29 @@ class OrchestratorTool(BaseTool):
             pipeline_result["stages"]["script_generation"] = script_result
             pipeline_result["script_text"] = script_result.get("script")
             
+            # Stage 3.5: AI Image Generation
+            print("🎨 Stage 3.5: Generating AI images for video...")
+            try:
+                image_result = self._generate_images(
+                    script_result.get("script"),
+                    sustainability_analysis.get("theme"),
+                    num_images=3  # 3 premium images with GCP credits
+                )
+                pipeline_result["stages"]["image_generation"] = image_result
+                pipeline_result["image_paths"] = image_result.get("image_paths", [])
+                
+                # Validate images were generated
+                if not pipeline_result["image_paths"] or len(pipeline_result["image_paths"]) == 0:
+                    raise Exception("No images were generated")
+                    
+                print(f"  ✓ Generated {len(pipeline_result['image_paths'])} premium AI images")
+                
+            except Exception as e:
+                print(f"  ❌ Image generation failed: {e}")
+                pipeline_result["error"] = f"Image generation failed: {e}"
+                pipeline_result["success"] = False
+                return pipeline_result
+            
             # Stage 4: AI Voice Generation
             print("🎙️ Stage 4: Converting script to AI voiceover...")
             voice_result = self._generate_voice(script_result.get("script"))
@@ -67,20 +92,28 @@ class OrchestratorTool(BaseTool):
             # Stage 5: Video Assembly
             print("🎬 Stage 5: Assembling final sustainability story video...")
             
-            # Check if audio was generated successfully
+            # Check prerequisites
             audio_path = voice_result.get("audio_path")
+            image_paths = pipeline_result.get("image_paths", [])
+            
             if not audio_path:
                 print("  ⚠️ No audio generated, skipping video assembly")
-                video_result = {
-                    "error": "Audio generation failed, video not created",
-                    "video_path": None
-                }
-            else:
-                video_result = self._assemble_video(
-                    script_result.get("script"),
-                    audio_path,
-                    sustainability_analysis.get("theme")
-                )
+                pipeline_result["error"] = "Audio generation failed"
+                pipeline_result["success"] = False
+                return pipeline_result
+                
+            if not image_paths or len(image_paths) == 0:
+                print("  ⚠️ No images available, skipping video assembly")
+                pipeline_result["error"] = "No images for video"
+                pipeline_result["success"] = False
+                return pipeline_result
+            
+            video_result = self._assemble_video(
+                script_result.get("script"),
+                audio_path,
+                sustainability_analysis.get("theme"),
+                image_paths
+            )
             
             pipeline_result["stages"]["video_assembly"] = video_result
             pipeline_result["final_video_path"] = video_result.get("video_path")
@@ -148,8 +181,22 @@ class OrchestratorTool(BaseTool):
         
         return voice_result
     
-    def _assemble_video(self, script: str, audio_path: str, theme: str) -> dict:
-        """Stage 5: Assemble final video with visuals and voiceover."""
+    def _generate_images(self, script: str, theme: str, num_images: int = 3) -> dict:
+        """Stage 3.5: Generate AI images for the video."""
+        from sub_agents.image_agent.imagen_generator_tool import ImagenGeneratorTool
+        
+        print("  → Generating AI images...")
+        generator = ImagenGeneratorTool()
+        image_result = generator.run(
+            script=script,
+            theme=theme,
+            num_images=num_images
+        )
+        
+        return image_result
+    
+    def _assemble_video(self, script: str, audio_path: str, theme: str, image_paths: list = None) -> dict:
+        """Stage 5: Assemble final video with AI images and voiceover."""
         from sub_agents.video_agent.video_assembler_tool import VideoAssemblerTool
         
         print("  → Assembling final sustainability story video...")
@@ -157,7 +204,8 @@ class OrchestratorTool(BaseTool):
         video_result = assembler.run(
             script=script,
             audio_path=audio_path,
-            theme=theme
+            theme=theme,
+            image_paths=image_paths
         )
         
         return video_result
