@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import './QuizCard.css';
+import { useState } from "react";
+import "./QuizCard.css";
 
 function QuizCard({ content, isActive }) {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -12,7 +12,7 @@ function QuizCard({ content, isActive }) {
 
   const handleSubmit = () => {
     if (!selectedOption) {
-      alert('Please select an option first!');
+      alert("Please select an option first!");
       return;
     }
     setSubmitted(true);
@@ -35,9 +35,7 @@ function QuizCard({ content, isActive }) {
         </div>
 
         <div className="quiz-question">
-          <h2 className="quiz-title">
-            ✨ {content.title} ✨
-          </h2>
+          <h2 className="quiz-title">✨ {content.title} ✨</h2>
           <p className="quiz-desc">{content.desc}</p>
           <div className="quiz-dots">
             <div className="quiz-dot dot-green"></div>
@@ -47,31 +45,32 @@ function QuizCard({ content, isActive }) {
         </div>
 
         <div className="quiz-options">
-          {content.options && content.options.map((option, index) => (
-            <button
-              key={option.id}
-              onClick={() => handleOptionSelect(option.id)}
-              disabled={submitted}
-              className={`quiz-option ${selectedOption === option.id ? 'selected' : ''} ${submitted ? 'disabled' : ''}`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="option-emoji">{option.emoji}</div>
-              <div className="option-text">{option.text}</div>
-              {selectedOption === option.id && !submitted && (
-                <div className="option-checkmark">✓</div>
-              )}
-              {submitted && selectedOption === option.id && (
-                <div className="option-submitted">✓</div>
-              )}
-            </button>
-          ))}
+          {content.options &&
+            content.options.map((option, index) => (
+              <button
+                key={option.id}
+                onClick={() => handleOptionSelect(option.id)}
+                disabled={submitted}
+                className={`quiz-option ${selectedOption === option.id ? "selected" : ""} ${submitted ? "disabled" : ""}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="option-emoji">{option.emoji}</div>
+                <div className="option-text">{option.text}</div>
+                {selectedOption === option.id && !submitted && (
+                  <div className="option-checkmark">✓</div>
+                )}
+                {submitted && selectedOption === option.id && (
+                  <div className="option-submitted">✓</div>
+                )}
+              </button>
+            ))}
         </div>
 
         {!submitted && (
           <button
             onClick={handleSubmit}
             disabled={!selectedOption}
-            className={`quiz-submit ${selectedOption ? 'active' : ''}`}
+            className={`quiz-submit ${selectedOption ? "active" : ""}`}
           >
             Submit Answer 🚀
           </button>

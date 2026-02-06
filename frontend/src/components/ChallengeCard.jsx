@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import './ChallengeCard.css';
+import { useState, useRef } from "react";
+import "./ChallengeCard.css";
 
 function ChallengeCard({ content, isActive }) {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -10,19 +10,21 @@ function ChallengeCard({ content, isActive }) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('File too large! Please upload an image smaller than 5MB');
+        alert("File too large! Please upload an image smaller than 5MB");
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setUploadedImage(reader.result);
-        
+
         // Add points to user profile
-        const currentPoints = parseInt(localStorage.getItem('userPoints') || '0');
+        const currentPoints = parseInt(
+          localStorage.getItem("userPoints") || "0",
+        );
         const newPoints = currentPoints + content.points;
-        localStorage.setItem('userPoints', newPoints.toString());
-        
+        localStorage.setItem("userPoints", newPoints.toString());
+
         alert(`Challenge Completed! You earned ${content.points} Points!`);
       };
       reader.readAsDataURL(file);
@@ -31,16 +33,18 @@ function ChallengeCard({ content, isActive }) {
 
   const handleShare = (platform) => {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`I completed the ${content.title} challenge and earned ${content.points} Points!`);
-    
+    const text = encodeURIComponent(
+      `I completed the ${content.title} challenge and earned ${content.points} Points!`,
+    );
+
     const shareUrls = {
       whatsapp: `https://wa.me/?text=${text}%20${url}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
       twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
     };
-    
+
     if (shareUrls[platform]) {
-      window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+      window.open(shareUrls[platform], "_blank", "width=600,height=400");
       setShowShareMenu(false);
     }
   };
@@ -70,7 +74,7 @@ function ChallengeCard({ content, isActive }) {
         </div>
 
         {!uploadedImage ? (
-          <div 
+          <div
             onClick={() => fileInputRef.current?.click()}
             className="challenge-upload"
           >
@@ -88,9 +92,9 @@ function ChallengeCard({ content, isActive }) {
         ) : (
           <div className="challenge-completed">
             <div className="uploaded-image-container">
-              <img 
-                src={uploadedImage} 
-                alt="Challenge completed" 
+              <img
+                src={uploadedImage}
+                alt="Challenge completed"
                 className="uploaded-image"
               />
               <div className="completion-badge">
@@ -100,7 +104,7 @@ function ChallengeCard({ content, isActive }) {
 
             <div className="share-section">
               <h3 className="share-title">Share Your Achievement!</h3>
-              
+
               <button
                 onClick={() => setShowShareMenu(!showShareMenu)}
                 className="share-button"
@@ -110,13 +114,22 @@ function ChallengeCard({ content, isActive }) {
 
               {showShareMenu && (
                 <div className="share-menu">
-                  <button onClick={() => handleShare('whatsapp')} className="share-option">
+                  <button
+                    onClick={() => handleShare("whatsapp")}
+                    className="share-option"
+                  >
                     WhatsApp
                   </button>
-                  <button onClick={() => handleShare('facebook')} className="share-option">
+                  <button
+                    onClick={() => handleShare("facebook")}
+                    className="share-option"
+                  >
                     Facebook
                   </button>
-                  <button onClick={() => handleShare('twitter')} className="share-option">
+                  <button
+                    onClick={() => handleShare("twitter")}
+                    className="share-option"
+                  >
                     Twitter
                   </button>
                 </div>

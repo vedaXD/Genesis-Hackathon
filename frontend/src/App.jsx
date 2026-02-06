@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef } from 'react'
-import './App.css'
-import ReelCard from './components/ReelCard'
-import QuizCard from './components/QuizCard'
-import ChallengeCard from './components/ChallengeCard'
+import { useState, useEffect, useRef } from "react";
+import "./App.css";
+import ReelCard from "./components/ReelCard";
+import QuizCard from "./components/QuizCard";
+import ChallengeCard from "./components/ChallengeCard";
 
 function App() {
   const [showOnboarding, setShowOnboarding] = useState(true);
-  const [userLocation, setUserLocation] = useState('');
-  const [userInterest, setUserInterest] = useState('');
+  const [userLocation, setUserLocation] = useState("");
+  const [userInterest, setUserInterest] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [userPoints, setUserPoints] = useState(0);
   const feedRef = useRef(null);
 
   // Load points from localStorage
   useEffect(() => {
-    const savedPoints = localStorage.getItem('userPoints');
+    const savedPoints = localStorage.getItem("userPoints");
     if (savedPoints) {
       setUserPoints(parseInt(savedPoints));
     }
@@ -23,7 +23,7 @@ function App() {
   // Update points when localStorage changes
   useEffect(() => {
     const interval = setInterval(() => {
-      const currentPoints = localStorage.getItem('userPoints');
+      const currentPoints = localStorage.getItem("userPoints");
       if (currentPoints) {
         setUserPoints(parseInt(currentPoints));
       }
@@ -33,11 +33,11 @@ function App() {
 
   // Check if onboarding was completed
   useEffect(() => {
-    const completed = localStorage.getItem('onboardingCompleted');
-    if (completed === 'true') {
+    const completed = localStorage.getItem("onboardingCompleted");
+    if (completed === "true") {
       setShowOnboarding(false);
-      const savedLocation = localStorage.getItem('userLocation');
-      const savedInterest = localStorage.getItem('userInterest');
+      const savedLocation = localStorage.getItem("userLocation");
+      const savedInterest = localStorage.getItem("userInterest");
       if (savedLocation) setUserLocation(savedLocation);
       if (savedInterest) setUserInterest(savedInterest);
     }
@@ -45,94 +45,106 @@ function App() {
 
   const handleOnboardingComplete = () => {
     if (!userLocation || !userInterest) {
-      alert('Please select both location and interest!');
+      alert("Please select both location and interest!");
       return;
     }
-    localStorage.setItem('onboardingCompleted', 'true');
-    localStorage.setItem('userLocation', userLocation);
-    localStorage.setItem('userInterest', userInterest);
+    localStorage.setItem("onboardingCompleted", "true");
+    localStorage.setItem("userLocation", userLocation);
+    localStorage.setItem("userInterest", userInterest);
     setShowOnboarding(false);
   };
 
   // Sample content data - mix of reels, quizzes, and challenges
   const feedContent = [
-    { type: 'reel', videoUrl: '/backend/data/videos/example1.mp4' },
-    { type: 'reel', videoUrl: '/backend/data/videos/example2.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example1.mp4" },
+    { type: "reel", videoUrl: "/backend/data/videos/example2.mp4" },
     {
-      type: 'quiz',
-      question: 'What is the most effective way to reduce your carbon footprint?',
-      options: ['Walk or bike instead of drive', 'Buy more things', 'Use plastic bags', 'Waste food'],
+      type: "quiz",
+      question:
+        "What is the most effective way to reduce your carbon footprint?",
+      options: [
+        "Walk or bike instead of drive",
+        "Buy more things",
+        "Use plastic bags",
+        "Waste food",
+      ],
       correctAnswer: 0,
-      points: 10
+      points: 10,
     },
-    { type: 'reel', videoUrl: '/backend/data/videos/example3.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example3.mp4" },
     {
-      type: 'challenge',
-      icon: '🚆',
-      title: 'Public Transport Champion',
-      desc: 'Share a photo of your train/bus ticket or metro pass!',
-      points: 50
+      type: "challenge",
+      icon: "🚆",
+      title: "Public Transport Champion",
+      desc: "Share a photo of your train/bus ticket or metro pass!",
+      points: 50,
     },
-    { type: 'reel', videoUrl: '/backend/data/videos/example4.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example4.mp4" },
     {
-      type: 'quiz',
-      question: 'How many years does it take for a plastic bottle to decompose?',
-      options: ['1 year', '10 years', '100 years', '450 years'],
+      type: "quiz",
+      question:
+        "How many years does it take for a plastic bottle to decompose?",
+      options: ["1 year", "10 years", "100 years", "450 years"],
       correctAnswer: 3,
-      points: 15
+      points: 15,
     },
-    { type: 'reel', videoUrl: '/backend/data/videos/example5.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example5.mp4" },
     {
-      type: 'challenge',
-      icon: '♻️',
-      title: 'Recycling Hero',
-      desc: 'Share a photo of you recycling waste properly!',
-      points: 40
+      type: "challenge",
+      icon: "♻️",
+      title: "Recycling Hero",
+      desc: "Share a photo of you recycling waste properly!",
+      points: 40,
     },
-    { type: 'reel', videoUrl: '/backend/data/videos/example6.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example6.mp4" },
     {
-      type: 'quiz',
-      question: 'Which renewable energy source is most efficient?',
-      options: ['Wind', 'Solar', 'Hydroelectric', 'Biomass'],
+      type: "quiz",
+      question: "Which renewable energy source is most efficient?",
+      options: ["Wind", "Solar", "Hydroelectric", "Biomass"],
       correctAnswer: 2,
-      points: 10
+      points: 10,
     },
     {
-      type: 'challenge',
-      icon: '🌱',
-      title: 'Plant a Tree',
-      desc: 'Plant a tree or care for a plant. Show us!',
-      points: 60
+      type: "challenge",
+      icon: "🌱",
+      title: "Plant a Tree",
+      desc: "Plant a tree or care for a plant. Show us!",
+      points: 60,
     },
-    { type: 'reel', videoUrl: '/backend/data/videos/example7.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example7.mp4" },
     {
-      type: 'quiz',
-      question: 'What percentage of Earth\'s water is freshwater?',
-      options: ['2.5%', '10%', '25%', '50%'],
+      type: "quiz",
+      question: "What percentage of Earth's water is freshwater?",
+      options: ["2.5%", "10%", "25%", "50%"],
       correctAnswer: 0,
-      points: 10
+      points: 10,
     },
     {
-      type: 'challenge',
-      icon: '🚰',
-      title: 'Water Saver',
-      desc: 'Show us your water-saving technique!',
-      points: 35
+      type: "challenge",
+      icon: "🚰",
+      title: "Water Saver",
+      desc: "Show us your water-saving technique!",
+      points: 35,
     },
-    { type: 'reel', videoUrl: '/backend/data/videos/example8.mp4' },
+    { type: "reel", videoUrl: "/backend/data/videos/example8.mp4" },
     {
-      type: 'quiz',
-      question: 'What is the biggest contributor to ocean pollution?',
-      options: ['Oil spills', 'Plastic waste', 'Chemical runoff', 'Overfishing'],
+      type: "quiz",
+      question: "What is the biggest contributor to ocean pollution?",
+      options: [
+        "Oil spills",
+        "Plastic waste",
+        "Chemical runoff",
+        "Overfishing",
+      ],
       correctAnswer: 1,
-      points: 15
+      points: 15,
     },
     {
-      type: 'challenge',
-      icon: '🛍️',
-      title: 'Zero Waste Shopping',
-      desc: 'Share your reusable bags or containers!',
-      points: 45
+      type: "challenge",
+      icon: "🛍️",
+      title: "Zero Waste Shopping",
+      desc: "Share your reusable bags or containers!",
+      points: 45,
     },
   ];
 
@@ -149,10 +161,10 @@ function App() {
           }
         });
       },
-      { threshold: 0.75 }
+      { threshold: 0.75 },
     );
 
-    const items = feedRef.current?.querySelectorAll('.feed-item');
+    const items = feedRef.current?.querySelectorAll(".feed-item");
     items?.forEach((item) => observer.observe(item));
 
     return () => observer.disconnect();
@@ -164,7 +176,9 @@ function App() {
         <div className="onboarding-modal">
           <div className="onboarding-header">
             <h1 className="onboarding-title">🌍 Welcome to EcoReels!</h1>
-            <p className="onboarding-subtitle">Let's personalize your experience</p>
+            <p className="onboarding-subtitle">
+              Let's personalize your experience
+            </p>
           </div>
 
           <div className="onboarding-form">
@@ -201,7 +215,7 @@ function App() {
               </select>
             </div>
 
-            <button 
+            <button
               onClick={handleOnboardingComplete}
               className="onboarding-button"
             >
@@ -225,21 +239,15 @@ function App() {
       {/* Vertical Scroll Feed */}
       <div className="feed-container" ref={feedRef}>
         {feedContent.map((content, index) => (
-          <div
-            key={index}
-            className="feed-item"
-            data-index={index}
-          >
-            {content.type === 'reel' && (
-              <ReelCard 
+          <div key={index} className="feed-item" data-index={index}>
+            {content.type === "reel" && (
+              <ReelCard
                 videoUrl={content.videoUrl}
                 isActive={index === activeIndex}
               />
             )}
-            {content.type === 'quiz' && (
-              <QuizCard content={content} />
-            )}
-            {content.type === 'challenge' && (
+            {content.type === "quiz" && <QuizCard content={content} />}
+            {content.type === "challenge" && (
               <ChallengeCard content={content} />
             )}
           </div>
@@ -249,4 +257,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

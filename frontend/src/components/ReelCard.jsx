@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import './ReelCard.css';
+import { useState, useRef, useEffect } from "react";
+import "./ReelCard.css";
 
 function ReelCard({ videoUrl, isActive }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,21 +38,23 @@ function ReelCard({ videoUrl, isActive }) {
   };
 
   const handleLike = () => {
-    alert('❤️ Liked!');
+    alert("❤️ Liked!");
   };
 
   const handleComment = () => {
-    alert('💬 Comment feature coming soon!');
+    alert("💬 Comment feature coming soon!");
   };
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: 'Check out this sustainability reel!',
-        url: window.location.href
-      }).catch(console.error);
+      navigator
+        .share({
+          title: "Check out this sustainability reel!",
+          url: window.location.href,
+        })
+        .catch(console.error);
     } else {
-      alert('📱 Share feature coming soon!');
+      alert("📱 Share feature coming soon!");
     }
   };
 
@@ -72,12 +74,12 @@ function ReelCard({ videoUrl, isActive }) {
 
       {/* Play/Pause Button */}
       {showControls && (
-        <button 
+        <button
           className="play-pause-btn"
           onClick={togglePlayPause}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
+          aria-label={isPlaying ? "Pause" : "Play"}
         >
-          {isPlaying ? '⏸' : '▶'}
+          {isPlaying ? "⏸" : "▶"}
         </button>
       )}
 
@@ -87,12 +89,12 @@ function ReelCard({ videoUrl, isActive }) {
           <span className="action-icon">❤️</span>
           <span className="action-text">Like</span>
         </button>
-        
+
         <button onClick={handleComment} className="action-btn">
           <span className="action-icon">💬</span>
           <span className="action-text">Comment</span>
         </button>
-        
+
         <button onClick={handleShare} className="action-btn">
           <span className="action-icon">📤</span>
           <span className="action-text">Share</span>
@@ -102,7 +104,9 @@ function ReelCard({ videoUrl, isActive }) {
       {/* Bottom Info */}
       <div className="reel-info">
         <div className="reel-title">🌱 Sustainability Reel</div>
-        <div className="reel-desc">Learn about making positive environmental impact</div>
+        <div className="reel-desc">
+          Learn about making positive environmental impact
+        </div>
       </div>
     </div>
   );
