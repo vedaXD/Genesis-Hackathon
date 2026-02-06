@@ -25,7 +25,10 @@ class IssueAnalyzerTool(BaseTool):
                 "Heat & Summer": "heat",
                 "Water & Rain": "water",
                 "Air & Health": "air",
-                "Sustainability & Future": "sustainability"
+                "Sustainability & Future": "sustainability",
+                "Education & Learning": "education",
+                "Health & Wellness": "health",
+                "Community & Connection": "community"
             }
             identified_theme = theme_map.get(user_theme, "sustainability")
             reason = f"User-selected theme: {user_theme}"
@@ -75,7 +78,10 @@ class IssueAnalyzerTool(BaseTool):
             "heat": f"Current temperature is {temp}°C with {weather_desc} conditions. Heat stress and energy consumption are key concerns.",
             "water": f"Current humidity at {humidity}% with {weather_desc}. Water conservation and rainfall patterns affect the community.",
             "air": f"{weather_desc.capitalize()} conditions with air quality concerns. Breathing clean air is a fundamental right.",
-            "sustainability": f"Current conditions: {weather_desc}, {temp}°C. A moment to reflect on our environmental footprint."
+            "sustainability": f"Current conditions: {weather_desc}, {temp}°C. A moment to reflect on our environmental footprint.",
+            "education": f"Education transforms lives and communities. Quality learning opportunities create lasting change.",
+            "health": f"Health is wealth. Access to healthcare and wellness resources strengthens communities.",
+            "community": f"Together we are stronger. Community connections and mutual support build resilience."
         }
         
         return context_templates.get(theme, "Environmental awareness is crucial for our shared future.")

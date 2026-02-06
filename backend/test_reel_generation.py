@@ -5,11 +5,27 @@ import time
 # API endpoint
 API_URL = "http://localhost:8000/api/generate-story"
 
-# Test request for Mumbai
+# ========================================
+# 🎯 CHOOSE YOUR DOMAIN HERE
+# ========================================
+# Environmental Themes: "Heat & Summer", "Water & Rain", "Air & Health", "Sustainability & Future"
+# Social Impact Themes: "Education & Learning", "Health & Wellness", "Community & Connection"
+# Auto-Detect: "Auto-Detect" (AI chooses based on location)
+
 test_data = {
     "location": "Mumbai",
-    "theme": "heat"
+    "theme": "Education & Learning"  # 👈 Change this to test different domains!
 }
+
+# Quick test examples (uncomment to use):
+# test_data = {"location": "Delhi", "theme": "Heat & Summer"}
+# test_data = {"location": "Chennai", "theme": "Water & Rain"}
+# test_data = {"location": "Beijing", "theme": "Air & Health"}
+# test_data = {"location": "Copenhagen", "theme": "Sustainability & Future"}
+# test_data = {"location": "Rural India", "theme": "Education & Learning"}
+# test_data = {"location": "Mumbai", "theme": "Health & Wellness"}
+# test_data = {"location": "New York", "theme": "Community & Connection"}
+# test_data = {"location": "Mumbai", "theme": "Auto-Detect"}
 
 print("🎬 Testing Sustainability Story Generation")
 print("=" * 50)
@@ -19,7 +35,9 @@ print("=" * 50)
 
 try:
     print("\n📤 Sending request to API...")
-    response = requests.post(API_URL, json=test_data, timeout=120)
+    print("⏱️  This will take ~3-4 minutes (5 AI images with rate limiting)")
+    print("☕ Grab a coffee and wait...\n")
+    response = requests.post(API_URL, json=test_data, timeout=360)
     
     print(f"\n✅ Status Code: {response.status_code}")
     
@@ -65,6 +83,11 @@ except requests.exceptions.ConnectionError:
     print("\n❌ Error: Could not connect to API server")
     print("Make sure the server is running: python api_server.py")
 except requests.exceptions.Timeout:
-    print("\n❌ Error: Request timed out (took more than 120 seconds)")
+    print("\n❌ Error: Request timed out (took more than 6 minutes)")
+    print("This usually means:")
+    print("  1. Rate limiting delays are longer than expected")
+    print("  2. GCP quota issues causing retries")
+    print("  3. Network connectivity problems")
+    print("\nCheck the API server terminal for detailed logs.")
 except Exception as e:
     print(f"\n❌ Error: {e}")

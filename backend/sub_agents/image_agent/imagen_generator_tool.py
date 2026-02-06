@@ -83,26 +83,63 @@ class ImagenGeneratorTool(BaseTool):
             raise Exception(f"Image generation failed: {e}")
     
     def _create_image_prompts(self, script: str, theme: str, num_images: int) -> list:
-        """Create image prompts based on script and theme."""
+        """Create diverse, realistic image prompts based on script and theme."""
         
-        # Base visual styles for each theme
-        theme_styles = {
-            "heat": "warm sunlight, golden hour, orange and red tones, summer heat effects",
-            "water": "flowing water, rain droplets, blue and aqua tones, water conservation",
-            "air": "clear sky, fresh air, light blue tones, environmental harmony",
-            "sustainability": "lush greenery, nature thriving, earthy tones, eco-friendly"
+        # Emotionally engaging, human-centered prompts that tell stories and inspire action
+        theme_prompts = {
+            "heat": [
+                "Empty playground on a hot summer day with strong shadows, climate impact on childhood, 9:16 format",
+                "Community members gathering under large tree for shade, people helping each other stay cool, 9:16 format",
+                "Rooftop with solar panels at golden hour symbolizing hope, sustainable future, 9:16 format",
+                "Contrast of withered plants and green irrigated garden, hope through action, 9:16 format",
+                "Elderly person being offered water by neighbor, community care during heat wave, 9:16 format"
+            ],
+            "water": [
+                "Hands cupped catching falling raindrops, precious water conservation moment, hope and gratitude, 9:16 format",
+                "Community water tap with people cooperating, sharing vital resource, unity, 9:16 format",
+                "Volunteers cleaning a river together, diverse group taking action for clean water, 9:16 format",
+                "Empty water vessel beside full one, contrast showing water scarcity and abundance, 9:16 format",
+                "Rainwater harvesting system with children learning, education for sustainable future, 9:16 format"
+            ],
+            "air": [
+                "Contrast of hazy city skyline and clear blue sky, hope for cleaner air, 9:16 format",
+                "Urban garden with lush green plants filtering air, nature healing the city, 9:16 format",
+                "Person cycling instead of driving, individual action for clean air, 9:16 format",
+                "Wind turbines against blue sky, renewable energy as solution, hopeful future, 9:16 format",
+                "Indoor plants by window with sunlight, natural air purification at home, 9:16 format"
+            ],
+            "sustainability": [
+                "Reusable shopping bags with fresh vegetables, individual sustainable choice, 9:16 format",
+                "Hands planting a small tree sapling in soil, hope growing, future investment, 9:16 format",
+                "Community members at compost bin, collective action for waste reduction, 9:16 format",
+                "Crowded public transport showing people choosing sustainable travel, 9:16 format",
+                "Building covered in green plants, harmony between nature and urban life, 9:16 format"
+            ],
+            "education": [
+                "Young student reading book with focused expression, hope for future through learning, 9:16 format",
+                "Diverse group of students collaborating on project, inclusive education, empowerment, 9:16 format",
+                "Teacher helping student one-on-one, dedication to education, personal attention, 9:16 format",
+                "Graduation cap thrown in air celebrating achievement, dreams realized through education, 9:16 format",
+                "Rural school with enthusiastic students, access to education transforming lives, 9:16 format"
+            ],
+            "health": [
+                "Healthcare worker showing compassion to patient, human connection in healing, 9:16 format",
+                "Person practicing meditation in peaceful outdoor setting, mental wellness matters, 9:16 format",
+                "Fresh fruits and vegetables being prepared, nutrition as preventive care, 9:16 format",
+                "Mobile health clinic in underserved area, bringing care to communities, 9:16 format",
+                "Support group circle with people connecting, mental health support, nobody alone, 9:16 format"
+            ],
+            "community": [
+                "Neighbors helping carry groceries, acts of kindness strengthening community, 9:16 format",
+                "Community garden with people of different ages working together, unity in diversity, 9:16 format",
+                "Volunteers serving meals with care, community support in action, 9:16 format",
+                "Cultural festival with diverse community celebrating together, belonging and connection, 9:16 format",
+                "Playground with inclusive equipment, safe space for all children, community investment, 9:16 format"
+            ]
         }
         
-        base_style = theme_styles.get(theme, "nature, environmental awareness, hopeful atmosphere")
-        
-        # Create diverse prompts for 5 different scenes (3 seconds each = 15 second reel)
-        prompts = [
-            f"A beautiful cinematic scene showing {base_style}, community connection, hope for future, photorealistic, 9:16 vertical format, high quality",
-            f"Environmental awareness visual with {base_style}, people caring for nature, peaceful atmosphere, photorealistic, 9:16 vertical format, high quality",
-            f"Inspiring sustainability scene with {base_style}, positive environmental action, bright natural lighting, photorealistic, 9:16 vertical format, high quality",
-            f"Close-up nature detail with {base_style}, environmental beauty, natural textures, photorealistic, 9:16 vertical format, high quality",
-            f"Hopeful future vision with {base_style}, sustainable living, harmony between humans and nature, photorealistic, 9:16 vertical format, high quality"
-        ]
+        # Get theme-specific prompts or use sustainability as default
+        prompts = theme_prompts.get(theme, theme_prompts["sustainability"])
         
         return prompts[:num_images]
     
@@ -110,35 +147,84 @@ class ImagenGeneratorTool(BaseTool):
         """Generate image using Google Imagen 3.0 - Premium Quality."""
         
         print(f"      Calling Imagen API (Premium Quality)...")
+        print(f"      DEBUG: Prompt length: {len(prompt)} chars")
         
-        # Generate image with best quality settings
-        response = self.model.generate_images(
-            prompt=prompt,
-            number_of_images=1,
-            aspect_ratio="9:16",
-            safety_filter_level="block_some",
-            person_generation="allow_adult"
-        )
-        
-        print(f"      Imagen response received")
-        print(f"      Response type: {type(response)}")
-        print(f"      Has images attr: {hasattr(response, 'images')}")
-        
-        # Check if response has images
-        if not hasattr(response, 'images') or not response.images:
-            print(f"      ERROR: No images in response!")
-            print(f"      Response: {response}")
-            raise Exception("Imagen returned empty response - no images generated")
-        
-        print(f"      Number of images: {len(response.images)}")
-        
-        # Save image - response.images is a list
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"imagen_hq_{timestamp}_{index}.png"
-        filepath = os.path.join(output_dir, filename)
-        
-        print(f"      Saving image to: {filepath}")
-        response.images[0].save(filepath)
-        print(f"      ✓ Saved successfully")
-        
-        return filepath
+        try:
+            # Generate image with more permissive settings
+            response = self.model.generate_images(
+                prompt=prompt,
+                number_of_images=1,
+                aspect_ratio="9:16",
+                safety_filter_level="block_few",  # More permissive
+                person_generation="allow_all"      # Allow all person types
+            )
+            
+            print(f"      Imagen response received")
+            print(f"      Response type: {type(response)}")
+            print(f"      Has images attr: {hasattr(response, 'images')}")
+            
+            # Check response details
+            if hasattr(response, '__dict__'):
+                print(f"      Response attributes: {list(response.__dict__.keys())}")
+            
+            # Check if response has images
+            if not hasattr(response, 'images') or not response.images:
+                print(f"      ⚠️  WARNING: No images in response!")
+                print(f"      Response object: {response}")
+                
+                # Check if blocked by safety filters
+                if hasattr(response, 'safety_attributes'):
+                    print(f"      Safety attributes: {response.safety_attributes}")
+                
+                # Try with simpler prompt
+                print(f"      🔄 Retrying with simplified prompt...")
+                simple_prompt = "A beautiful natural landscape scene in 9:16 vertical format, photorealistic, high quality"
+                response = self.model.generate_images(
+                    prompt=simple_prompt,
+                    number_of_images=1,
+                    aspect_ratio="9:16",
+                    safety_filter_level="block_few"
+                )
+                
+                if not hasattr(response, 'images') or not response.images:
+                    raise Exception("Imagen returned empty response - no images generated even with simplified prompt")
+            
+            print(f"      Number of images: {len(response.images)}")
+            
+            # Save image - response.images is a list
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"imagen_hq_{timestamp}_{index}.png"
+            filepath = os.path.join(output_dir, filename)
+            
+            print(f"      Saving image to: {filepath}")
+            response.images[0].save(filepath)
+            print(f"      ✓ Saved successfully")
+            
+            return filepath
+            
+        except Exception as api_error:
+            print(f"      ❌ API Error: {api_error}")
+            print(f"      Error type: {type(api_error).__name__}")
+            
+            # If it's a safety filter or prompt issue, try generic fallback
+            if "safety" in str(api_error).lower() or "empty response" in str(api_error).lower():
+                print(f"      🔄 Attempting generic nature scene as fallback...")
+                try:
+                    fallback_prompt = "Beautiful natural landscape with clear sky, photorealistic image, 9:16 vertical format"
+                    response = self.model.generate_images(
+                        prompt=fallback_prompt,
+                        number_of_images=1,
+                        aspect_ratio="9:16"
+                    )
+                    
+                    if response.images:
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        filename = f"imagen_fallback_{timestamp}_{index}.png"
+                        filepath = os.path.join(output_dir, filename)
+                        response.images[0].save(filepath)
+                        print(f"      ✓ Fallback image saved")
+                        return filepath
+                except Exception as fallback_error:
+                    print(f"      ❌ Fallback also failed: {fallback_error}")
+            
+            raise Exception(f"Image generation failed: {api_error}")

@@ -137,13 +137,21 @@ class OrchestratorTool(BaseTool):
         if use_mock:
             from sub_agents.location_data_agent.mock_weather_tool import MockWeatherAPITool
             print(f"  🧪 [MOCK MODE] Generating fake weather data for {location}...")
+            print(f"  ⚠️  WARNING: Using mock data - set USE_MOCK_WEATHER=false in .env for real data")
             weather_tool = MockWeatherAPITool()
         else:
             from sub_agents.location_data_agent.weather_api_tool import WeatherAPITool
-            print(f"  → Fetching environmental data for {location}...")
+            print(f"  🌤️  [REAL API] Fetching LIVE weather data for {location}...")
             weather_tool = WeatherAPITool()
         
         location_data = weather_tool.run(location=location)
+        
+        # Log the fetched data for debugging
+        if location_data.get('success'):
+            temp = location_data.get('temperature', {}).get('current', 'N/A')
+            weather = location_data.get('weather', {}).get('description', 'N/A')
+            humidity = location_data.get('humidity', 'N/A')
+            print(f"  ✓ Weather Data: {weather}, {temp}°C, {humidity}% humidity")
         
         return location_data
     

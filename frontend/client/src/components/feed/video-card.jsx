@@ -1,10 +1,25 @@
 import { Heart, MessageCircle, Share2, MapPin, Bookmark } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function VideoCard({ content, isActive }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const videoRef = useRef(null);
+
+  // Auto-play video when active
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isActive) {
+        videoRef.current
+          .play()
+          .catch((err) => console.log("Autoplay prevented:", err));
+      } else {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      }
+    }
+  }, [isActive]);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -12,18 +27,20 @@ export function VideoCard({ content, isActive }) {
 
   const handleShare = (platform) => {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Check out: ${content.title} - ${content.description}`);
-    
+    const text = encodeURIComponent(
+      `Check out: ${content.title} - ${content.description}`,
+    );
+
     const shareUrls = {
       whatsapp: `https://wa.me/?text=${text}%20${url}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
       twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-      telegram: `https://t.me/share/url?url=${url}&text=${text}`
+      telegram: `https://t.me/share/url?url=${url}&text=${text}`,
     };
-    
+
     if (shareUrls[platform]) {
-      window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+      window.open(shareUrls[platform], "_blank", "width=600,height=400");
       setShowShareMenu(false);
     }
   };
@@ -40,13 +57,34 @@ export function VideoCard({ content, isActive }) {
 
       {/* 9:16 Mobile Video Container */}
       <div className="relative w-full max-w-md mx-auto px-4">
-        <div className="relative bg-white border-6 border-black shadow-brutal-xl" style={{ aspectRatio: '9/16' }}>
-          <img
-            src={content.thumbnail}
-            alt={content.title}
-            className="w-full h-full object-contain bg-gray-900"
-          />
-          
+        <div
+          className="relative bg-white border-6 border-black shadow-brutal-xl"
+          style={{ aspectRatio: "9/16" }}
+        >
+          {content.videoUrl ? (
+            <video
+              ref={videoRef}
+              src={content.videoUrl}
+              className="w-full h-full object-cover bg-gray-900"
+              loop
+              playsInline
+              muted={false}
+              onClick={(e) => {
+                if (e.target.paused) {
+                  e.target.play();
+                } else {
+                  e.target.pause();
+                }
+              }}
+            />
+          ) : (
+            <img
+              src={content.thumbnail}
+              alt={content.title}
+              className="w-full h-full object-contain bg-gray-900"
+            />
+          )}
+
           {/* Cartoon overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 pointer-events-none" />
 
@@ -54,8 +92,12 @@ export function VideoCard({ content, isActive }) {
           <div className="absolute top-4 left-4 z-10">
             <div className="inline-flex items-center gap-2 bg-white border-4 border-black px-4 py-2 shadow-brutal font-comic">
               <MapPin className="w-5 h-5" strokeWidth={3} />
-              <span className="font-black text-sm">{content.location.name}</span>
-              <span className="text-xs font-bold text-gray-600">• {content.year}</span>
+              <span className="font-black text-sm">
+                {content.location.name}
+              </span>
+              <span className="text-xs font-bold text-gray-600">
+                • {content.year}
+              </span>
             </div>
           </div>
 
@@ -74,9 +116,13 @@ export function VideoCard({ content, isActive }) {
               </div>
 
               {/* Title & Description */}
-              <h2 className="text-2xl font-black mb-2 leading-tight font-comic">{content.title}</h2>
-              <p className="text-sm font-bold text-gray-700 mb-3">{content.description}</p>
-              
+              <h2 className="text-2xl font-black mb-2 leading-tight font-comic">
+                {content.title}
+              </h2>
+              <p className="text-sm font-bold text-gray-700 mb-3">
+                {content.description}
+              </p>
+
               {/* Stats */}
               <div className="flex gap-3">
                 <div className="bg-pink-200 border-3 border-black px-3 py-1 text-sm font-black">
@@ -95,7 +141,7 @@ export function VideoCard({ content, isActive }) {
           <button
             onClick={handleLike}
             className={`w-14 h-14 flex items-center justify-center border-4 border-black transition-all shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm ${
-              liked ? 'bg-pink-400' : 'bg-white'
+              liked ? "bg-pink-400" : "bg-white"
             }`}
           >
             <Heart
@@ -110,10 +156,10 @@ export function VideoCard({ content, isActive }) {
             <MessageCircle className="w-7 h-7" stroke="black" strokeWidth={3} />
           </button>
 
-          <button 
+          <button
             onClick={() => setSaved(!saved)}
             className={`w-14 h-14 flex items-center justify-center border-4 border-black transition-all shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm ${
-              saved ? 'bg-yellow-300' : 'bg-white'
+              saved ? "bg-yellow-300" : "bg-white"
             }`}
           >
             <Bookmark
@@ -125,43 +171,68 @@ export function VideoCard({ content, isActive }) {
           </button>
 
           <button className="w-14 h-14 bg-green-300 border-4 border-black flex items-center justify-center transition-all shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm relative">
-            <Share2 
-              className="w-6 h-6" 
-              stroke="black" 
+            <Share2
+              className="w-6 h-6"
+              stroke="black"
               strokeWidth={3}
               onClick={() => setShowShareMenu(!showShareMenu)}
             />
             {showShareMenu && (
               <div className="absolute right-16 top-0 bg-white border-4 border-black shadow-brutal-xl p-2 flex flex-col gap-2 min-w-[180px] z-30">
-                <button 
-                  onClick={() => handleShare('whatsapp')}
+                <button
+                  onClick={() => handleShare("whatsapp")}
                   className="flex items-center gap-2 p-2 hover:bg-green-100 border-2 border-black font-bold text-sm"
                 >
-                  <img src="https://static.vecteezy.com/system/resources/previews/016/716/480/non_2x/whatsapp-icon-free-png.png" alt="WhatsApp" className="w-6 h-6" /> WhatsApp
+                  <img
+                    src="https://static.vecteezy.com/system/resources/previews/016/716/480/non_2x/whatsapp-icon-free-png.png"
+                    alt="WhatsApp"
+                    className="w-6 h-6"
+                  />{" "}
+                  WhatsApp
                 </button>
-                <button 
-                  onClick={() => handleShare('facebook')}
+                <button
+                  onClick={() => handleShare("facebook")}
                   className="flex items-center gap-2 p-2 hover:bg-blue-100 border-2 border-black font-bold text-sm"
                 >
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Facebook_logo_%28square%29.png/500px-Facebook_logo_%28square%29.png" alt="Facebook" className="w-6 h-6" /> Facebook
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Facebook_logo_%28square%29.png/500px-Facebook_logo_%28square%29.png"
+                    alt="Facebook"
+                    className="w-6 h-6"
+                  />{" "}
+                  Facebook
                 </button>
-                <button 
-                  onClick={() => handleShare('twitter')}
+                <button
+                  onClick={() => handleShare("twitter")}
                   className="flex items-center gap-2 p-2 hover:bg-sky-100 border-2 border-black font-bold text-sm"
                 >
-                  <img src="https://static.vecteezy.com/system/resources/thumbnails/018/930/695/small/twitter-logo-twitter-icon-transparent-free-free-png.png" alt="Twitter" className="w-6 h-6" /> Twitter
+                  <img
+                    src="https://static.vecteezy.com/system/resources/thumbnails/018/930/695/small/twitter-logo-twitter-icon-transparent-free-free-png.png"
+                    alt="Twitter"
+                    className="w-6 h-6"
+                  />{" "}
+                  Twitter
                 </button>
-                <button 
-                  onClick={() => handleShare('linkedin')}
+                <button
+                  onClick={() => handleShare("linkedin")}
                   className="flex items-center gap-2 p-2 hover:bg-blue-100 border-2 border-black font-bold text-sm"
                 >
-                  <img src="https://static.vecteezy.com/system/resources/previews/018/930/480/non_2x/linkedin-logo-linkedin-icon-transparent-free-png.png" alt="LinkedIn" className="w-6 h-6" /> LinkedIn
+                  <img
+                    src="https://static.vecteezy.com/system/resources/previews/018/930/480/non_2x/linkedin-logo-linkedin-icon-transparent-free-png.png"
+                    alt="LinkedIn"
+                    className="w-6 h-6"
+                  />{" "}
+                  LinkedIn
                 </button>
-                <button 
-                  onClick={() => handleShare('telegram')}
+                <button
+                  onClick={() => handleShare("telegram")}
                   className="flex items-center gap-2 p-2 hover:bg-cyan-100 border-2 border-black font-bold text-sm"
                 >
-                  <img src="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png" alt="Telegram" className="w-6 h-6" /> Telegram
+                  <img
+                    src="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png"
+                    alt="Telegram"
+                    className="w-6 h-6"
+                  />{" "}
+                  Telegram
                 </button>
               </div>
             )}

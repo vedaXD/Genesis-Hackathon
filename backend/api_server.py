@@ -48,7 +48,7 @@ os.makedirs(AUDIO_DIR, exist_ok=True)
 class StoryRequest(BaseModel):
     """Story generation request"""
     location: str
-    theme: Optional[str] = None  # "Heat & Summer", "Water & Rain", "Air & Health", "Sustainability & Future", or "Auto-Detect"
+    theme: Optional[str] = None  # Environmental: "Heat & Summer", "Water & Rain", "Air & Health", "Sustainability & Future" | Social: "Education & Learning", "Health & Wellness", "Community & Connection" | "Auto-Detect"
 
 
 class StoryResponse(BaseModel):
@@ -71,22 +71,47 @@ async def root():
         <head>
             <title>AROGYA SATHI API</title>
             <style>
-                body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+                body { font-family: Arial; max-width: 900px; margin: 50px auto; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
                 h1 { font-size: 2.5em; }
                 .subtitle { font-size: 1.2em; opacity: 0.9; margin-bottom: 30px; }
                 .endpoint { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 8px; }
-                code { background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px; }
+                .domains { background: rgba(255,255,255,0.15); padding: 20px; margin: 20px 0; border-radius: 8px; }
+                .domain-category { margin: 15px 0; }
+                code { background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px; font-size: 0.9em; }
                 a { color: #ffd700; text-decoration: none; }
+                .emoji { font-size: 1.2em; }
             </style>
         </head>
         <body>
             <h1>🌱 AROGYA SATHI API</h1>
-            <p class="subtitle">AI-Powered Empathetic Sustainability Storytelling</p>
-            <p>Transform environmental data into human-centered stories that people can feel.</p>
+            <p class="subtitle">AI-Powered Empathetic Storytelling - Transform social issues into human-centered visual stories</p>
+            <p>Generate 15-second reels with AI images, voiceover, and location-aware narratives.</p>
+            
+            <div class="domains">
+                <h3>🎯 Available Story Domains:</h3>
+                <div class="domain-category">
+                    <strong>🌡️ Environmental Impact:</strong>
+                    <code>Heat & Summer</code>
+                    <code>Water & Rain</code>
+                    <code>Air & Health</code>
+                    <code>Sustainability & Future</code>
+                </div>
+                <div class="domain-category">
+                    <strong>🤝 Social Impact:</strong>
+                    <code>Education & Learning</code>
+                    <code>Health & Wellness</code>
+                    <code>Community & Connection</code>
+                </div>
+                <div class="domain-category">
+                    <strong>🔄 Smart Detection:</strong>
+                    <code>Auto-Detect</code> (AI chooses based on location)
+                </div>
+            </div>
             
             <h2>Endpoints:</h2>
             <div class="endpoint">
-                <code>POST /api/generate-story</code> - Generate sustainability story from location
+                <code>POST /api/generate-story</code> - Generate empathetic story reel
+                <br><small>Body: {"location": "Mumbai", "theme": "Education & Learning"}</small>
             </div>
             <div class="endpoint">
                 <code>GET /api/video/{video_id}</code> - Retrieve generated video
@@ -95,7 +120,7 @@ async def root():
                 <code>GET /health</code> - Health check
             </div>
             
-            <p><a href="/docs">📚 API Documentation</a></p>
+            <p><a href="/docs">📚 Interactive API Documentation</a></p>
         </body>
     </html>
     """
@@ -109,6 +134,44 @@ async def health_check():
         "service": "AROGYA SATHI",
         "timestamp": datetime.now().isoformat()
     }
+
+
+@app.get("/api/videos")
+async def list_videos():
+    """List all generated videos with metadata"""
+    try:
+        videos = []
+        video_files = [f for f in os.listdir(VIDEOS_DIR) if f.endswith('.mp4')]
+        
+        for filename in sorted(video_files, reverse=True):  # Newest first
+            file_path = os.path.join(VIDEOS_DIR, filename)
+            file_stat = os.stat(file_path)
+            
+            # Extract timestamp from filename (format: arogya_sathi_YYYYMMDD_HHMMSS.mp4)
+            try:
+                timestamp_str = filename.replace('arogya_sathi_', '').replace('.mp4', '')
+                created_at = datetime.strptime(timestamp_str, '%Y%m%d_%H%M%S').isoformat()
+            except:
+                created_at = datetime.fromtimestamp(file_stat.st_ctime).isoformat()
+            
+            videos.append({
+                "id": filename.replace('.mp4', ''),
+                "filename": filename,
+                "url": f"/api/video/{filename}",
+                "size": file_stat.st_size,
+                "created_at": created_at,
+                "title": f"Sustainability Story",
+                "type": "video"
+            })
+        
+        return {
+            "success": True,
+            "count": len(videos),
+            "videos": videos
+        }
+    except Exception as e:
+        print(f"❌ Error listing videos: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/generate-story", response_model=StoryResponse)
@@ -176,7 +239,21 @@ async def get_audio(filename: str):
 
 if __name__ == "__main__":
     print("🌱 Starting AROGYA SATHI API Server...")
-    print("📍 Location-aware sustainability storytelling")
-    print("🎬 AI-generated empathetic narratives")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("📍 Location-aware empathetic storytelling")
+    print("🎬 AI-generated narratives for social & environmental impact")
+    print("🎨 Domains: Environment, Education, Health, Community & more")
+    
+    # Use port 8001 if 8000 is busy
+    import socket
+    port = 8000
+    try:
+        # Test if port is available
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('', port))
+    except OSError:
+        port = 8001
+        print(f"⚠️  Port 8000 busy, using port {port} instead")
+    
+    print(f"🌐 Server will run on: http://localhost:{port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
 

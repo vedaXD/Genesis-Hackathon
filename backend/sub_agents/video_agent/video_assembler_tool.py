@@ -58,13 +58,19 @@ class VideoAssemblerTool(BaseTool):
         
         # Load audio to get duration
         audio = AudioFileClip(audio_path)
-        total_duration = audio.duration
+        
+        # FIXED 15 SECOND REEL - trim audio if longer
+        TARGET_DURATION = 15.0  # Always 15 seconds
+        
+        if audio.duration > TARGET_DURATION:
+            print(f"    ⚠️  Audio is {audio.duration:.1f}s, trimming to {TARGET_DURATION}s")
+            audio = audio.subclip(0, TARGET_DURATION)
         
         # Fixed 15 second reel: 5 images @ 3 seconds each
         num_images = len(image_paths)
-        duration_per_image = 3.0  # 3 seconds per image (5 images × 3s = 15s)
+        duration_per_image = TARGET_DURATION / num_images  # Divide evenly
         
-        print(f"    Creating {num_images} premium image clips (3s each for 15s total)...")
+        print(f"    Creating {num_images} image clips ({duration_per_image:.1f}s each = {TARGET_DURATION}s total)...")
         
         # Create image clips
         clips = []
@@ -77,7 +83,7 @@ class VideoAssemblerTool(BaseTool):
                 # Convert to numpy array
                 img_array = np.array(img)
                 
-                # Create clip with 5 second duration
+                # Create clip with calculated duration
                 clip = ImageClip(img_array, duration=duration_per_image)
                 
                 # Add fade effects to first and last clips
@@ -98,19 +104,14 @@ class VideoAssemblerTool(BaseTool):
         if not clips:
             raise Exception("No valid image clips created")
         
-        # Concatenate all clips
+        # Concatenate all clips (should be exactly 15 seconds)
         final_video = concatenate_videoclips(clips, method="compose")
         
-        # Trim or loop to match audio duration
-        if final_video.duration < total_duration:
-            # Loop video if shorter than audio
-            loops_needed = int(total_duration / final_video.duration) + 1
-            final_video = concatenate_videoclips([final_video] * loops_needed)
+        # Force exact 15 second duration
+        if final_video.duration != TARGET_DURATION:
+            final_video = final_video.subclip(0, TARGET_DURATION)
         
-        # Trim to exact audio duration
-        final_video = final_video.subclip(0, min(total_duration, final_video.duration))
-        
-        # Add audio
+        # Add audio (already trimmed to 15s)
         final_video = final_video.set_audio(audio)
         
         # Export video
