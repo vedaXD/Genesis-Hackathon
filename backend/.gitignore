@@ -1,10 +1,12 @@
 # Python
+__pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -21,27 +23,103 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-/staticfiles/
-/media/
-
-# Environment
-.env
+# Virtual Environments
+venv/
+ENV/
+env/
 .venv
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
 
 # OS
 .DS_Store
 Thumbs.db
+*.bak
+*~
+
+# Logs
+*.log
+logs/
+debug_output.txt
+debug.log
+
+# API keys and secrets
+config/secrets.json
+config/api_keys.json
+*.key
+*.pem
+*.cert
+service-account-key.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/*.json
+!data/claims_db.json
+
+# Generated media files
+data/audio/*
+data/videos/*
+data/uploads/*
+data/video_assets/*
+# But keep the folder structure
+!data/audio/.gitkeep
+!data/videos/.gitkeep
+!data/uploads/.gitkeep
+!data/video_assets/.gitkeep
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Chrome Extension (development files)
+chrome_extension/.crx
+chrome_extension/.pem
+chrome_extension/node_modules/
+
+# Model files (if using local ML models)
+*.h5
+*.pt
+*.pth
+*.onnx
+models/
+checkpoints/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Audio/Video processing cache
+audio_cache/
+video_cache/
+*.wav.tmp
+*.mp4.tmp

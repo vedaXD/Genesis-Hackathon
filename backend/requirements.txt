@@ -1,5 +1,28 @@
-Django>=5.0,<6.0
-djangorestframework>=3.14.0
-django-cors-headers>=4.3.0
-python-dotenv>=1.0.0
-psycopg2-binary>=2.9.9
+﻿# Core AI & Google Cloud
+google-adk
+google-generativeai
+google-cloud-aiplatform  # Vertex AI for GCP
+google-cloud-texttospeech
+google-cloud-storage
+gtts  # Fallback TTS when cloud credentials not available
+
+# Web & API
+requests
+fastapi
+uvicorn
+python-multipart
+aiofiles
+beautifulsoup4
+
+# Video & Audio Processing
+moviepy<2.0  # v2.x breaks imports, use 1.x
+numpy
+pillow
+opencv-python
+
+# Environment & Utils
+python-dotenv
+
+# Optional: For advanced features
+# transformers  # Only if you need ML models
+# torch  # Only if you need deep learning
