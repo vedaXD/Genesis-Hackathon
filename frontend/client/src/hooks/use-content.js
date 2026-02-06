@@ -6,8 +6,11 @@ const CONTENT_TYPES = ['video', 'quiz'];
 const generateMockContent = () => {
   const contents = [];
   
-  for (let i = 1; i <= 15; i++) {
-    const type = CONTENT_TYPES[i % 2]; // Alternate between video and quiz
+  // Pattern: 2 reels, 1 quiz, 2 reels, 1 challenge (repeats)
+  const pattern = ['video', 'video', 'quiz', 'video', 'video', 'challenge'];
+  
+  for (let i = 0; i < 18; i++) {
+    const type = pattern[i % pattern.length];
     
     if (type === 'video') {
       const topics = [
@@ -28,7 +31,7 @@ const generateMockContent = () => {
         title: topic.title,
         description: topic.desc,
         thumbnail: `https://picsum.photos/seed/climate${i}/1920/1080`,
-        creator: 'ClimateStories',
+        creator: 'Arogya Setu',
         likes: Math.floor(Math.random() * 10000) + 1000,
         comments: Math.floor(Math.random() * 500) + 50,
         location: {
@@ -41,58 +44,91 @@ const generateMockContent = () => {
     } else if (type === 'quiz') {
       const quizzes = [
         {
-          title: 'How do you commute daily?',
-          desc: 'Help us personalize your climate story',
-          icon: '🚶',
+          title: 'What is the greenhouse effect?',
+          desc: 'Test your sustainability knowledge',
+          icon: '🌍',
           options: [
-            { id: 'a', text: 'Walk or Bicycle', emoji: '🚴' },
-            { id: 'b', text: 'Public Transport', emoji: '🚌' },
-            { id: 'c', text: 'Personal Car', emoji: '🚗' },
-            { id: 'd', text: 'Two-Wheeler', emoji: '🏍️' }
+            { id: 'a', text: 'Trapping heat in atmosphere', emoji: '🔥' },
+            { id: 'b', text: 'Growing plants indoors', emoji: '🌱' },
+            { id: 'c', text: 'Solar panel energy', emoji: '☀️' },
+            { id: 'd', text: 'Weather patterns', emoji: '🌧️' }
           ]
         },
         {
-          title: 'What matters most to you?',
-          desc: 'Tell us your climate concerns',
-          icon: '❤️',
-          options: [
-            { id: 'a', text: 'Clean Air', emoji: '🌬️' },
-            { id: 'b', text: 'Green Spaces', emoji: '🌳' },
-            { id: 'c', text: 'Water Quality', emoji: '💧' },
-            { id: 'd', text: 'Wildlife', emoji: '🦋' }
-          ]
-        },
-        {
-          title: 'Your home energy source?',
-          desc: 'Understanding your carbon footprint',
+          title: 'Which is renewable energy?',
+          desc: 'Choose the sustainable option',
           icon: '⚡',
           options: [
-            { id: 'a', text: 'Solar Power', emoji: '☀️' },
-            { id: 'b', text: 'Grid Electricity', emoji: '🔌' },
-            { id: 'c', text: 'Mixed Sources', emoji: '⚡' },
-            { id: 'd', text: 'Not Sure', emoji: '❓' }
+            { id: 'a', text: 'Coal Power', emoji: '⛏️' },
+            { id: 'b', text: 'Wind Energy', emoji: '💨' },
+            { id: 'c', text: 'Natural Gas', emoji: '🔥' },
+            { id: 'd', text: 'Nuclear Energy', emoji: '⚛️' }
           ]
         },
         {
-          title: 'Favorite outdoor activity?',
-          desc: 'What climate changes affect you most',
-          icon: '🎯',
+          title: 'What does carbon footprint mean?',
+          desc: 'Understanding environmental impact',
+          icon: '👣',
           options: [
-            { id: 'a', text: 'Morning Walks', emoji: '🌅' },
-            { id: 'b', text: 'Gardening', emoji: '🌱' },
-            { id: 'c', text: 'Sports', emoji: '⚽' },
-            { id: 'd', text: 'Photography', emoji: '📸' }
+            { id: 'a', text: 'Shoe size measurement', emoji: '👟' },
+            { id: 'b', text: 'CO2 emissions produced', emoji: '💨' },
+            { id: 'c', text: 'Forest area size', emoji: '🌳' },
+            { id: 'd', text: 'Energy consumption', emoji: '⚡' }
           ]
         },
         {
-          title: 'Your climate concern level?',
-          desc: 'Help us match your engagement',
-          icon: '🌡️',
+          title: 'Most effective way to reduce waste?',
+          desc: 'Pick the best sustainable practice',
+          icon: '♻️',
           options: [
-            { id: 'a', text: 'Very Concerned', emoji: '😰' },
-            { id: 'b', text: 'Moderately Worried', emoji: '😟' },
-            { id: 'c', text: 'Curious', emoji: '🤔' },
-            { id: 'd', text: 'Learning', emoji: '📚' }
+            { id: 'a', text: 'Reduce & Reuse', emoji: '🔄' },
+            { id: 'b', text: 'Just Recycle', emoji: '♻️' },
+            { id: 'c', text: 'Burn Trash', emoji: '🔥' },
+            { id: 'd', text: 'Landfill Only', emoji: '🗑️' }
+          ]
+        },
+        {
+          title: 'Which pollutes water most?',
+          desc: 'Identify the major threat',
+          icon: '💧',
+          options: [
+            { id: 'a', text: 'Plastic Waste', emoji: '🥤' },
+            { id: 'b', text: 'Fish Swimming', emoji: '🐟' },
+            { id: 'c', text: 'Rainfall', emoji: '🌧️' },
+            { id: 'd', text: 'Boat Traffic', emoji: '⛵' }
+          ]
+        },
+        {
+          title: 'What is biodiversity?',
+          desc: 'Learn about ecosystem health',
+          icon: '🦋',
+          options: [
+            { id: 'a', text: 'Variety of life forms', emoji: '🌺' },
+            { id: 'b', text: 'Type of fuel', emoji: '⛽' },
+            { id: 'c', text: 'Weather pattern', emoji: '🌤️' },
+            { id: 'd', text: 'Soil quality', emoji: '🌱' }
+          ]
+        },
+        {
+          title: 'Why are forests important?',
+          desc: 'Understanding ecosystem services',
+          icon: '🌳',
+          options: [
+            { id: 'a', text: 'Absorb CO2 & produce O2', emoji: '💚' },
+            { id: 'b', text: 'Just for wood', emoji: '🪵' },
+            { id: 'c', text: 'Animal shelter only', emoji: '🦌' },
+            { id: 'd', text: 'Decoration', emoji: '🎄' }
+          ]
+        },
+        {
+          title: 'What is composting?',
+          desc: 'Sustainable waste management',
+          icon: '🌱',
+          options: [
+            { id: 'a', text: 'Burning waste', emoji: '🔥' },
+            { id: 'b', text: 'Organic waste to fertilizer', emoji: '🌿' },
+            { id: 'c', text: 'Plastic recycling', emoji: '♻️' },
+            { id: 'd', text: 'Water treatment', emoji: '💧' }
           ]
         }
       ];
@@ -102,6 +138,52 @@ const generateMockContent = () => {
         id: `quiz-${i}`,
         type: 'quiz',
         ...quiz
+      });
+    } else if (type === 'challenge') {
+      const challenges = [
+        {
+          title: 'Plant a Tree Challenge',
+          desc: 'Plant one tree and share your contribution to a greener planet',
+          icon: '🌳',
+          points: 100
+        },
+        {
+          title: 'Zero Waste Day',
+          desc: 'Go one full day without generating any plastic waste',
+          icon: '♻️',
+          points: 50
+        },
+        {
+          title: 'Carpool to Work',
+          desc: 'Share a ride with colleagues and reduce carbon emissions',
+          icon: '🚗',
+          points: 30
+        },
+        {
+          title: 'Clean Local Park',
+          desc: 'Pick up litter from your neighborhood park for 1 hour',
+          icon: '🧹',
+          points: 75
+        },
+        {
+          title: 'Composting Starter',
+          desc: 'Start your own compost bin at home',
+          icon: '🌱',
+          points: 60
+        },
+        {
+          title: 'Energy Free Hour',
+          desc: 'Switch off all electronics for one hour during peak time',
+          icon: '💡',
+          points: 40
+        }
+      ];
+      
+      const challenge = challenges[i % challenges.length];
+      contents.push({
+        id: `challenge-${i}`,
+        type: 'challenge',
+        ...challenge
       });
     }
   }
@@ -136,6 +218,15 @@ export function useSubmitAnswer() {
     mutationFn: async ({ contentId, answer }) => {
       await new Promise(resolve => setTimeout(resolve, 500));
       return { success: true, contentId, answer };
+    },
+  });
+}
+
+export function useSubmitChallenge() {
+  return useMutation({
+    mutationFn: async ({ contentId, image, points }) => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return { success: true, contentId, image, points };
     },
   });
 }

@@ -16,7 +16,7 @@ export function TopNav() {
     <div className="fixed top-0 left-0 right-0 h-16 bg-white border-b-6 border-black z-50 flex items-center justify-between px-6 shadow-brutal">
       <div className="flex items-center gap-3">
         <div className="text-3xl">🌍</div>
-        <div className="text-2xl font-black uppercase font-comic">ClimateStories</div>
+        <div className="text-2xl font-black uppercase font-comic">Arogya Setu</div>
       </div>
       
       <div className="flex items-center gap-6">

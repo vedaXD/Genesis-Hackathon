@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useContent } from "@/hooks/use-content";
 import { VideoCard } from "@/components/feed/video-card";
 import { QuizCard } from "@/components/feed/quiz-card";
+import { ChallengeCard } from "@/components/feed/challenge-card";
 import { TopNav } from "@/components/layout/top-nav";
 import { LocationModal } from "@/components/modals/location-modal";
 import { Loader2 } from "lucide-react";
@@ -11,6 +12,8 @@ function ContentItem({ item, isActive }) {
     return <VideoCard content={item} isActive={isActive} />;
   } else if (item.type === 'quiz') {
     return <QuizCard content={item} isActive={isActive} />;
+  } else if (item.type === 'challenge') {
+    return <ChallengeCard content={item} isActive={isActive} />;
   }
   return null;
 }

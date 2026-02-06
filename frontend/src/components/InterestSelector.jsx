@@ -13,7 +13,17 @@ const INTEREST_OPTIONS = [
   { id: 'cities', label: 'Urban Life', icon: '🏙️', color: '#f97316' },
   { id: 'spirituality', label: 'Spirituality', icon: '🕉️', color: '#a855f7' },
   { id: 'art', label: 'Art & Crafts', icon: '🎨', color: '#14b8a6' },
-  { id: 'villages', label: 'Rural India', icon: '🌾', color: '#84cc16' }
+  { id: 'villages', label: 'Rural India', icon: '🌾', color: '#84cc16' },
+  { id: 'yoga', label: 'Yoga & Wellness', icon: '🧘', color: '#f472b6' },
+  { id: 'music', label: 'Music & Dance', icon: '🎵', color: '#fb923c' },
+  { id: 'textiles', label: 'Textiles & Fashion', icon: '👗', color: '#c026d3' },
+  { id: 'wildlife', label: 'Wildlife Safari', icon: '🐘', color: '#059669' },
+  { id: 'tea', label: 'Tea Gardens', icon: '🍵', color: '#65a30d' },
+  { id: 'temples', label: 'Temples & Shrines', icon: '⛩️', color: '#d946ef' },
+  { id: 'markets', label: 'Local Markets', icon: '🛍️', color: '#ea580c' },
+  { id: 'waterfall', label: 'Waterfalls & Lakes', icon: '💦', color: '#0ea5e9' },
+  { id: 'desert', label: 'Deserts & Dunes', icon: '🏜️', color: '#facc15' },
+  { id: 'railways', label: 'Heritage Railways', icon: '🚂', color: '#71717a' }
 ];
 
 function InterestSelector({ onComplete, initialInterests = [] }) {
