@@ -38,13 +38,14 @@ export function ReelCard({ reel, isActive }: ReelCardProps) {
     }
   };
 
-  // Auto play/pause based on isActive
+  // Auto play/pause based on isActive with improved behavior
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     if (isActive) {
-      // Try to play when active
+      // Reset to beginning and try to play when active
+      video.currentTime = 0;
       const playPromise = video.play();
 
       if (playPromise !== undefined) {
@@ -54,15 +55,16 @@ export function ReelCard({ reel, isActive }: ReelCardProps) {
             setShowPlayButton(false);
           })
           .catch((error: unknown) => {
-            // Auto-play failed, show play button
+            // Auto-play prevented, show play button
             console.log("Auto-play prevented:", error);
             setShowPlayButton(true);
             setIsPlaying(false);
           });
       }
     } else {
-      // Pause when not active (scrolled away)
+      // Pause and reset when not active (scrolled away)
       video.pause();
+      video.currentTime = 0;
       setIsPlaying(false);
     }
   }, [isActive]);

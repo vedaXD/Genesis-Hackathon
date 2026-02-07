@@ -33,20 +33,31 @@ export default function FeedPage() {
     }
   }, []);
 
+  // Use IntersectionObserver for better performance and accuracy
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const itemHeight = window.innerHeight;
-      const newIndex = Math.round(scrollTop / itemHeight);
-      setActiveIndex(newIndex);
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.dataset.index);
+            setActiveIndex(index);
+          }
+        });
+      },
+      { 
+        threshold: 0.5, // Trigger when 50% visible for better responsiveness
+        root: container 
+      }
+    );
 
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
+    const items = container.querySelectorAll('.snap-start');
+    items.forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, [contents]);
 
   const handleLocationSet = (location) => {
     setLocationSet(true);
@@ -98,11 +109,15 @@ export default function FeedPage() {
       <div 
         ref={containerRef}
         className="h-screen w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
-        style={{ scrollBehavior: 'smooth' }}
+        style={{ 
+          scrollBehavior: 'smooth',
+          overscrollBehaviorY: 'contain' // Prevent bounce on edges
+        }}
       >
         {contents.map((item, index) => (
           <div 
             key={item.id} 
+            data-index={index}
             className="h-screen w-full snap-start snap-always"
           >
             <ContentItem 

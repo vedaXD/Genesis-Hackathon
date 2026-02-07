@@ -7,14 +7,17 @@ export function VideoCard({ content, isActive }) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const videoRef = useRef(null);
 
-  // Auto-play video when active
+  // Auto-play video when active with improved behavior
   useEffect(() => {
     if (videoRef.current) {
       if (isActive) {
+        // Reset to beginning and auto-play when scrolled into view
+        videoRef.current.currentTime = 0;
         videoRef.current
           .play()
           .catch((err) => console.log("Autoplay prevented:", err));
       } else {
+        // Pause and reset when scrolled away
         videoRef.current.pause();
         videoRef.current.currentTime = 0;
       }
