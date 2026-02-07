@@ -1,26 +1,56 @@
 import { useState } from "react";
-import { MapPin, X } from "lucide-react";
+import { MapPin, X, Coffee, Footprints } from "lucide-react";
 import { useRequestLocation } from "@/hooks/use-content";
 import { Button } from "@/components/ui/button";
 
 export function LocationModal({ onClose, onLocationSet }) {
-  const [step, setStep] = useState('intro'); // intro, requesting, success, error
+  const [step, setStep] = useState('intro'); // intro, requesting, success, interests, generating
   const requestLocation = useRequestLocation();
+  const [userInterests, setUserInterests] = useState({
+    drink: '',
+    walkingPlace: '',
+    otherHabit: ''
+  });
 
   const handleRequestLocation = () => {
     setStep('requesting');
     requestLocation.mutate(undefined, {
       onSuccess: (data) => {
-        setStep('success');
-        setTimeout(() => {
-          onLocationSet(data);
-          onClose();
-        }, 1500);
+        // Store location temporarily
+        localStorage.setItem('userLatitude', data.latitude);
+        localStorage.setItem('userLongitude', data.longitude);
+        setStep('interests');
       },
       onError: (error) => {
         setStep('error');
       }
     });
+  };
+
+  const handleInterestsSubmit = () => {
+    if (!userInterests.drink || !userInterests.walkingPlace) {
+      alert('Please fill in all fields');
+      return;
+    }
+    
+    // Store interests
+    localStorage.setItem('userInterests', JSON.stringify(userInterests));
+    setStep('generating');
+    
+    // Get location data
+    const lat = localStorage.getItem('userLatitude');
+    const lng = localStorage.getItem('userLongitude');
+    
+    // Trigger personalized video generation
+    onLocationSet({ 
+      latitude: lat, 
+      longitude: lng, 
+      interests: userInterests 
+    });
+    
+    setTimeout(() => {
+      onClose();
+    }, 2000);
   };
 
   return (
@@ -92,6 +122,87 @@ export function LocationModal({ onClose, onLocationSet }) {
             <p className="text-lg font-bold text-gray-700">
               Preparing your personalized climate stories...
             </p>
+          </div>
+        )}
+
+        {step === 'interests' && (
+          <div className="text-center space-y-6">
+            <div className="text-8xl mb-4">🎯</div>
+            <h2 className="text-3xl font-black uppercase font-comic mb-3">
+              Tell Us About You
+            </h2>
+            <p className="text-base font-bold text-gray-600 mb-6">
+              Help us create your personalized sustainability story
+            </p>
+            
+            <div className="space-y-4 text-left">
+              <div>
+                <label className="flex items-center gap-2 text-lg font-black mb-2">
+                  <Coffee className="w-5 h-5" strokeWidth={3} />
+                  What do you usually drink?
+                </label>
+                <input
+                  type="text"
+                  value={userInterests.drink}
+                  onChange={(e) => setUserInterests({...userInterests, drink: e.target.value})}
+                  placeholder="e.g., Coffee, Tea, Water..."
+                  className="w-full p-3 border-4 border-black font-bold focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-lg font-black mb-2">
+                  <Footprints className="w-5 h-5" strokeWidth={3} />
+                  Where do you go for walking?
+                </label>
+                <input
+                  type="text"
+                  value={userInterests.walkingPlace}
+                  onChange={(e) => setUserInterests({...userInterests, walkingPlace: e.target.value})}
+                  placeholder="e.g., Park, Beach, Streets..."
+                  className="w-full p-3 border-4 border-black font-bold focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-lg font-black mb-2">
+                  🌱 Any other daily habit?
+                </label>
+                <input
+                  type="text"
+                  value={userInterests.otherHabit}
+                  onChange={(e) => setUserInterests({...userInterests, otherHabit: e.target.value})}
+                  placeholder="e.g., Cycling, Gardening... (optional)"
+                  className="w-full p-3 border-4 border-black font-bold focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                />
+              </div>
+            </div>
+
+            <Button
+              onClick={handleInterestsSubmit}
+              variant="default"
+              size="lg"
+              className="w-full text-xl mt-6"
+            >
+              Generate My Story! 🎬
+            </Button>
+          </div>
+        )}
+
+        {step === 'generating' && (
+          <div className="text-center space-y-6">
+            <div className="text-8xl mb-4 animate-bounce">🎬</div>
+            <h2 className="text-3xl font-black uppercase font-comic">
+              Creating Your Story...
+            </h2>
+            <p className="text-lg font-bold text-gray-600">
+              Our AI is crafting a personalized sustainability story just for you!
+            </p>
+            <div className="flex justify-center gap-2 mt-4">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+            </div>
           </div>
         )}
 

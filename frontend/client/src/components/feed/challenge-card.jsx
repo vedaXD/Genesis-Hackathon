@@ -1,14 +1,17 @@
 import { useState, useRef, Fragment } from "react";
-import { Upload, Camera, CheckCircle2, Share2 } from "lucide-react";
+import { Upload, Camera, CheckCircle2, Share2, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useSubmitChallenge } from "@/hooks/use-content";
 
 export function ChallengeCard({ content, isActive, onComplete }) {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const fileInputRef = useRef(null);
   const { toast } = useToast();
+  const submitChallenge = useSubmitChallenge();
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -21,22 +24,47 @@ export function ChallengeCard({ content, isActive, onComplete }) {
       }
       
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedImage(reader.result);
+      reader.onloadend = async () => {
+        const imageData = reader.result;
+        setIsValidating(true);
         
-        // Add points to user profile
-        const currentPoints = parseInt(localStorage.getItem('userPoints') || '0');
-        const newPoints = currentPoints + content.points;
-        localStorage.setItem('userPoints', newPoints.toString());
-        
-        if (onComplete) {
-          onComplete(content.points);
+        try {
+          // Submit challenge with validation
+          const result = await submitChallenge.mutateAsync({
+            contentId: content.id,
+            image: imageData,
+            points: content.points,
+            validationType: content.validationType || 'general'
+          });
+          
+          if (result.success) {
+            setUploadedImage(imageData);
+            
+            // Add points to user profile
+            const currentPoints = parseInt(localStorage.getItem('userPoints') || '0');
+            const newPoints = currentPoints + content.points;
+            localStorage.setItem('userPoints', newPoints.toString());
+            
+            if (onComplete) {
+              onComplete(content.points);
+            }
+            
+            toast({
+              title: result.validated ? "VALIDATED & COMPLETED! ✅" : "CHALLENGE COMPLETED! 🎉",
+              description: result.validated 
+                ? `AI verified your submission! You earned ${content.points} Points!` 
+                : `You earned ${content.points} Points! (₹${content.points} discount value)`,
+            });
+          }
+        } catch (error) {
+          toast({
+            title: "VALIDATION FAILED ❌",
+            description: error.message || "Could not verify your submission. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsValidating(false);
         }
-        
-        toast({
-          title: "CHALLENGE COMPLETED! 🎉",
-          description: `You earned ${content.points} Points! (₹${content.points} discount value)`,
-        });
       };
       reader.readAsDataURL(file);
     }
@@ -91,14 +119,16 @@ export function ChallengeCard({ content, isActive, onComplete }) {
         </div>
 
         {/* Upload Area */}
-        {!uploadedImage ? (
+        {!uploadedImage && !isValidating ? (
           <div 
             onClick={() => fileInputRef.current?.click()}
             className="border-6 border-dashed border-black bg-white p-12 text-center cursor-pointer hover:bg-gray-50 transition-all shadow-brutal hover:translate-x-2 hover:translate-y-2 hover:shadow-brutal-sm"
           >
             <Upload className="w-16 h-16 mx-auto mb-4" strokeWidth={3} />
             <h3 className="text-xl font-black uppercase mb-2">Upload Your Proof</h3>
-            <p className="text-sm font-bold text-gray-600">Click to upload image (max 5MB)</p>
+            <p className="text-sm font-bold text-gray-600">
+              {content.instruction || "Click to upload image (max 5MB)"}
+            </p>
             <input
               ref={fileInputRef}
               type="file"
@@ -106,6 +136,19 @@ export function ChallengeCard({ content, isActive, onComplete }) {
               onChange={handleImageUpload}
               className="hidden"
             />
+          </div>
+        ) : isValidating ? (
+          <div className="border-6 border-black bg-white p-12 text-center shadow-brutal-xl">
+            <Loader2 className="w-16 h-16 mx-auto mb-4 animate-spin text-green-600" strokeWidth={3} />
+            <h3 className="text-xl font-black uppercase mb-2">Validating with AI...</h3>
+            <p className="text-sm font-bold text-gray-600">
+              Our AI is checking your submission
+            </p>
+            <div className="flex justify-center gap-2 mt-4">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

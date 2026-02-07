@@ -8,6 +8,7 @@ import FeedPage from "@/pages/feed";
 import CreatePage from "@/pages/create";
 import DiscoverPage from "@/pages/discover";
 import ProfilePage from "@/pages/profile";
+import RewardsPage from "@/pages/rewards";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/create" component={CreatePage} />
       <Route path="/discover" component={DiscoverPage} />
       <Route path="/profile" component={ProfilePage} />
+      <Route path="/rewards" component={RewardsPage} />
       <Route component={NotFound} />
     </Switch>
   );

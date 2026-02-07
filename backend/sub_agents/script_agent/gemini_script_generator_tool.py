@@ -1,5 +1,8 @@
 from google.adk.tools.base_tool import BaseTool
 import os
+import time
+import hashlib
+import json
 from datetime import datetime
 
 class GeminiScriptGeneratorTool(BaseTool):
@@ -8,6 +11,11 @@ class GeminiScriptGeneratorTool(BaseTool):
             name="generate_empathetic_script",
             description="Uses Gemini AI to generate empathetic, human-centered sustainability stories"
         )
+        
+        # Simple in-memory cache to avoid redundant API calls
+        self.script_cache = {}
+        self.cache_dir = os.path.join(os.path.dirname(__file__), '.cache')
+        os.makedirs(self.cache_dir, exist_ok=True)
         
         # Use Vertex AI for GCP credits
         project_id = os.getenv('GOOGLE_CLOUD_PROJECT')
@@ -32,7 +40,7 @@ class GeminiScriptGeneratorTool(BaseTool):
     
     def run(self, location: str, location_data: dict, sustainability_analysis: dict) -> dict:
         """
-        Generate an empathetic sustainability story.
+        Generate an empathetic sustainability story with caching and error handling.
         
         Args:
             location: User's location
@@ -44,10 +52,7 @@ class GeminiScriptGeneratorTool(BaseTool):
         """
         
         if not self.model:
-            return {
-                "error": "Gemini model not configured",
-                "script": ""
-            }
+            return self._get_fallback_script(location, sustainability_analysis.get('theme', 'sustainability'))
         
         try:
             theme = sustainability_analysis.get('theme', 'sustainability')
@@ -58,6 +63,15 @@ class GeminiScriptGeneratorTool(BaseTool):
             aqi = location_data.get('air_quality_index', None)
             wind_speed = location_data.get('wind_speed', 0)
             
+            # Create cache key based on location and conditions
+            cache_key = self._get_cache_key(location, theme, temp, weather, aqi)
+            
+            # Check cache first
+            cached_script = self._get_cached_script(cache_key)
+            if cached_script:
+                print(f"  ✓ Using cached script for {location} ({theme})")
+                return cached_script
+            
             # Craft the empathetic storytelling prompt
             prompt = self._create_storytelling_prompt(location, theme, context, temp, weather, humidity, aqi, wind_speed)
             
@@ -67,45 +81,47 @@ class GeminiScriptGeneratorTool(BaseTool):
                 aqi_labels = {1: "Good", 2: "Fair", 3: "Moderate", 4: "Poor", 5: "Very Poor"}
                 print(f"  → Air Quality: {aqi_labels.get(aqi, 'Unknown')} (AQI: {aqi})")
             
-            # Generate with Vertex AI Gemini
-            if self.use_vertex:
-                response = self.model.generate_content(prompt)
-                script = response.text.strip()
-            else:
-                response = self.model.generate_content(prompt)
-                script = response.text.strip()
+            # Generate with retry logic and exponential backoff
+            script = self._generate_with_retry(prompt, max_retries=3)
+            
+            if not script:
+                return self._get_fallback_script(location, theme)
             
             # Validate script length (aim for 15 seconds MAXIMUM = ~35-45 words)
             word_count = len(script.split())
-            if word_count < 25 or word_count > 50:
-                print(f"  ⚠️ Script length: {word_count} words (target: 35-45 for 15s). Regenerating...")
-                # Regenerate with stricter length constraint
-                script = self._regenerate_with_length_constraint(prompt, word_count)
-                word_count = len(script.split())
-                
-                # Final check - force trim if still too long
-                if word_count > 50:
-                    print(f"  ⚠️ Still too long ({word_count} words), trimming to 50 words max")
+            
+            # Only regenerate if SIGNIFICANTLY off (to save API calls)
+            if word_count < 20 or word_count > 60:
+                print(f"  ⚠️ Script length: {word_count} words (acceptable range: 20-60). Using as-is to preserve quota.")
+                # Trim if too long instead of regenerating
+                if word_count > 60:
                     words = script.split()
-                    script = ' '.join(words[:50]) + "."
+                    script = ' '.join(words[:55]) + "."
+                    print(f"  → Trimmed to {len(script.split())} words")
             
             print(f"  ✓ Generated script ({len(script.split())} words ≈ {len(script.split())/3:.0f}s)")
             
-            return {
+            result = {
                 "script": script,
                 "word_count": len(script.split()),
                 "theme": theme,
                 "timestamp": datetime.now().isoformat()
             }
             
+            # Cache the result
+            self._cache_script(cache_key, result)
+            
+            return result
+            
         except Exception as e:
-            print(f"  ❌ Error generating script: {e}")
-            # Fallback script that includes actual location
-            fallback = f"In {location}, the future is being written by today's choices. Every sustainable action, every voice raised for change, every helping hand creates the world we want to leave behind. Together, we can make tomorrow better."
-            return {
-                "error": str(e),
-                "script": fallback
-            }
+            error_msg = str(e).lower()
+            if 'quota' in error_msg or 'exhausted' in error_msg or '429' in error_msg:
+                print(f"  ❌ QUOTA EXHAUSTED: {e}")
+                print(f"  → Using fallback script to avoid blocking video generation")
+            else:
+                print(f"  ❌ Error generating script: {e}")
+            
+            return self._get_fallback_script(location, sustainability_analysis.get('theme', 'sustainability'))
     
     def _create_storytelling_prompt(self, location: str, theme: str, context: str, temp: float, weather: str, humidity: int = 0, aqi: int = None, wind_speed: float = 0) -> str:
         """Create the empathetic storytelling prompt for Gemini."""
@@ -229,19 +245,102 @@ Generate the script now:"""
         
         return guidance.get(theme, guidance["sustainability"])
     
-    def _regenerate_with_length_constraint(self, original_prompt: str, previous_count: int) -> str:
-        """Regenerate script with stricter length enforcement."""
+    def _generate_with_retry(self, prompt: str, max_retries: int = 3) -> str:
+        """Generate content with exponential backoff retry logic."""
+        for attempt in range(max_retries):
+            try:
+                if self.use_vertex:
+                    response = self.model.generate_content(prompt)
+                else:
+                    response = self.model.generate_content(prompt)
+                
+                script = response.text.strip()
+                return script
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                
+                # Check if it's a quota/rate limit error
+                if 'quota' in error_msg or 'exhausted' in error_msg or '429' in error_msg or 'resource' in error_msg:
+                    wait_time = (2 ** attempt) * 2  # Exponential backoff: 2s, 4s, 8s
+                    print(f"  ⚠️ Quota/Rate limit hit (attempt {attempt + 1}/{max_retries})")
+                    
+                    if attempt < max_retries - 1:
+                        print(f"  → Waiting {wait_time}s before retry...")
+                        time.sleep(wait_time)
+                    else:
+                        print(f"  ❌ Max retries reached, API quota exhausted")
+                        raise Exception("API quota exhausted after retries")
+                else:
+                    # For other errors, don't retry
+                    raise e
         
-        if previous_count > 50:
-            length_note = f"\n\n**CRITICAL: Previous attempt was {previous_count} words - TOO LONG! Generate EXACTLY 35-45 words MAXIMUM for 15-second reel. Be CONCISE.**"
-        else:
-            length_note = f"\n\n**CRITICAL: Previous attempt was {previous_count} words. Generate EXACTLY 35-45 words for 15-second reel. Count carefully.**"
+        return None
+    
+    def _get_cache_key(self, location: str, theme: str, temp: float, weather: str, aqi: int = None) -> str:
+        """Generate cache key based on location and conditions."""
+        # Round temp to nearest 5 degrees and combine key elements
+        temp_bucket = round(temp / 5) * 5
+        aqi_bucket = round(aqi / 50) * 50 if aqi else "none"
+        key_string = f"{location}_{theme}_{temp_bucket}_{weather}_{aqi_bucket}"
+        return hashlib.md5(key_string.encode()).hexdigest()
+    
+    def _get_cached_script(self, cache_key: str) -> dict:
+        """Retrieve cached script if available and not expired."""
+        # Check memory cache first
+        if cache_key in self.script_cache:
+            return self.script_cache[cache_key]
         
-        adjusted_prompt = original_prompt + length_note
+        # Check file cache
+        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, 'r') as f:
+                    cached_data = json.load(f)
+                    # Cache for 24 hours
+                    cache_time = datetime.fromisoformat(cached_data.get('timestamp', ''))
+                    age_hours = (datetime.now() - cache_time).total_seconds() / 3600
+                    
+                    if age_hours < 24:
+                        self.script_cache[cache_key] = cached_data
+                        return cached_data
+            except Exception as e:
+                print(f"  → Cache read error: {e}")
         
+        return None
+    
+    def _cache_script(self, cache_key: str, result: dict):
+        """Cache the generated script."""
+        # Memory cache
+        self.script_cache[cache_key] = result
+        
+        # File cache
         try:
-            response = self.model.generate_content(adjusted_prompt)
-            return response.text.strip()
-        except:
-            # Fallback is exactly 42 words for 15 seconds
-            return "A child watches rain through a window, wondering if tomorrow's world will be kinder. Every choice we make today—every voice raised, every hand extended—becomes the answer to that question. Our planet needs people who care enough to try."
+            cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+            with open(cache_file, 'w') as f:
+                json.dump(result, f)
+        except Exception as e:
+            print(f"  → Cache write error: {e}")
+    
+    def _get_fallback_script(self, location: str, theme: str) -> dict:
+        """Get a context-aware fallback script when API fails."""
+        
+        fallback_scripts = {
+            "heat": f"In {location}, rising temperatures challenge us every day. But together, through tree planting, cool roofs, and sustainable choices, we can protect our communities. Every action counts in building a cooler tomorrow.",
+            "water": f"Water scarcity touches lives in {location}. Every drop saved, every rainwater harvested, every hand protecting our rivers becomes hope for tomorrow. Together, we can ensure water for all.",
+            "air": f"Clean air in {location} starts with our choices. Every green space protected, every clean vehicle, every voice for change clears the path to fresher tomorrows. Breathe easy, act now.",
+            "sustainability": f"In {location}, the future is being written by today's choices. Every sustainable action, every voice raised for change, every helping hand creates the world we want to leave behind. Together, we can make tomorrow better.",
+            "education": f"Education transforms lives in {location}. Every book shared, every scholarship funded, every child empowered unlocks a future we can't yet imagine. Knowledge is the key to change.",
+            "health": f"Healthcare access in {location} means dignity for all. Every life valued, every treatment accessible, every community cared for creates a healthier tomorrow. Together, we heal.",
+            "community": f"In {location}, connection strengthens us. Every hand extended, every story heard, every neighbor helped weaves the safety net we all need. Community is our greatest resource."
+        }
+        
+        script = fallback_scripts.get(theme, fallback_scripts["sustainability"])
+        
+        return {
+            "script": script,
+            "word_count": len(script.split()),
+            "theme": theme,
+            "timestamp": datetime.now().isoformat(),
+            "fallback": True
+        }

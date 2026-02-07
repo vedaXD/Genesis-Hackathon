@@ -95,4 +95,62 @@
   .animate-bounce-in {
     animation: bounce-in 0.5s ease-out;
   }
+  
+  @keyframes scale-bounce {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    70% {
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-scale-bounce {
+    animation: scale-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+      background-size: 200% 200%;
+    }
+    50% {
+      background-position: 100% 50%;
+      background-size: 200% 200%;
+    }
+  }
+
+  .animate-gradient-x {
+    animation: gradient-x 3s ease infinite;
+  }
+  
+  /* Custom Video Caption Styling - Brutalist Design */
+  video::cue {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 0.5rem 1rem;
+    border: 3px solid white;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+  }
+  
+  video::-webkit-media-text-track-container {
+    overflow: visible !important;
+  }
+  
+  video::-webkit-media-text-track-display {
+    padding-bottom: 3rem;
+  }
 }

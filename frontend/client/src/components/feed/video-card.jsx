@@ -1,11 +1,91 @@
-import { Heart, MessageCircle, Share2, MapPin, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Share2, MapPin, Bookmark, Subtitles } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export function VideoCard({ content, isActive }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
+  const [currentCaption, setCurrentCaption] = useState('');
+  const [captions, setCaptions] = useState([]);
   const videoRef = useRef(null);
+  const trackRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Load and parse subtitle file
+  useEffect(() => {
+    if (content.subtitleUrl) {
+      fetch(content.subtitleUrl)
+        .then(res => res.text())
+        .then(vttText => {
+          const parsed = parseVTT(vttText);
+          setCaptions(parsed);
+        })
+        .catch(err => console.log('Could not load subtitles:', err));
+    }
+  }, [content.subtitleUrl]);
+
+  // Parse WebVTT format
+  const parseVTT = (vttText) => {
+    const lines = vttText.split('\n');
+    const cues = [];
+    let i = 0;
+    
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      
+      // Look for timestamp line (contains "-->")
+      if (line.includes('-->')) {
+        const [startStr, endStr] = line.split('-->');
+        const startTime = parseVTTTimestamp(startStr.trim());
+        const endTime = parseVTTTimestamp(endStr.trim());
+        
+        // Next line(s) are the caption text
+        i++;
+        let text = '';
+        while (i < lines.length && lines[i].trim() !== '') {
+          text += lines[i].trim() + ' ';
+          i++;
+        }
+        
+        if (text.trim()) {
+          cues.push({ startTime, endTime, text: text.trim() });
+        }
+      }
+      i++;
+    }
+    
+    return cues;
+  };
+
+  // Parse VTT timestamp to seconds
+  const parseVTTTimestamp = (timestamp) => {
+    const parts = timestamp.split(':');
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseFloat(parts[2]) || 0;
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  // Update current caption based on video time
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !subtitlesEnabled || captions.length === 0) {
+      setCurrentCaption('');
+      return;
+    }
+
+    const updateCaption = () => {
+      const currentTime = video.currentTime;
+      const activeCue = captions.find(
+        cue => currentTime >= cue.startTime && currentTime <= cue.endTime
+      );
+      setCurrentCaption(activeCue ? activeCue.text : '');
+    };
+
+    video.addEventListener('timeupdate', updateCaption);
+    return () => video.removeEventListener('timeupdate', updateCaption);
+  }, [captions, subtitlesEnabled]);
 
   // Auto-play video when active with improved behavior
   useEffect(() => {
@@ -23,6 +103,11 @@ export function VideoCard({ content, isActive }) {
       }
     }
   }, [isActive]);
+
+  // Toggle subtitles on/off
+  const toggleSubtitles = () => {
+    setSubtitlesEnabled(!subtitlesEnabled);
+  };
 
   const handleLike = () => {
     setLiked(!liked);
@@ -72,6 +157,7 @@ export function VideoCard({ content, isActive }) {
               loop
               playsInline
               muted={false}
+              crossOrigin="anonymous"
               onClick={(e) => {
                 if (e.target.paused) {
                   e.target.play();
@@ -88,8 +174,31 @@ export function VideoCard({ content, isActive }) {
             />
           )}
 
+          {/* Custom Caption Overlay */}
+          {subtitlesEnabled && currentCaption && (
+            <div className="absolute bottom-16 left-0 right-0 flex justify-center px-4 pointer-events-none z-10">
+              <div className="bg-black/90 border-3 border-white px-4 py-2 max-w-[90%] shadow-brutal-sm">
+                <p className="text-white text-center font-bold text-sm leading-tight">
+                  {currentCaption}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Cartoon overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 pointer-events-none" />
+
+          {/* Personalized Badge - Top Right */}
+          {content.isPersonalized && (
+            <div className="absolute top-4 right-4 z-10 animate-bounce-in">
+              <div className="bg-gradient-to-r from-purple-400 to-pink-400 border-4 border-black px-4 py-2 shadow-brutal-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">✨</span>
+                  <span className="font-black text-white text-sm uppercase">For You</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Top Location Badge */}
           <div className="absolute top-4 left-4 z-10">
@@ -168,6 +277,21 @@ export function VideoCard({ content, isActive }) {
             <Bookmark
               className="w-6 h-6"
               fill={saved ? "black" : "none"}
+              stroke="black"
+              strokeWidth={3}
+            />
+          </button>
+
+          {/* Subtitles Toggle - Browser-based Live Captions */}
+          <button
+            onClick={toggleSubtitles}
+            className={`w-14 h-14 flex items-center justify-center border-4 border-black transition-all shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm ${
+              subtitlesEnabled ? "bg-purple-300" : "bg-white"
+            }`}
+            title={subtitlesEnabled ? "Hide Live Captions (CC ON)" : "Show Live Captions (CC OFF)"}
+          >
+            <Subtitles
+              className="w-7 h-7"
               stroke="black"
               strokeWidth={3}
             />
