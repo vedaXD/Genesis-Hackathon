@@ -1,7 +1,7 @@
 import { Heart, MessageCircle, Share2, MapPin, Bookmark, Subtitles } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
-export function VideoCard({ content, isActive }) {
+export function VideoCard({ content, isActive, modalOpen = false }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -9,19 +9,35 @@ export function VideoCard({ content, isActive }) {
   const [currentCaption, setCurrentCaption] = useState('');
   const [captions, setCaptions] = useState([]);
   const videoRef = useRef(null);
-  const trackRef = useRef(null);
-  const recognitionRef = useRef(null);
 
-  // Load and parse subtitle file
+  // Load and parse subtitle file from backend
   useEffect(() => {
     if (content.subtitleUrl) {
+      console.log('🎬 Loading subtitles from:', content.subtitleUrl);
       fetch(content.subtitleUrl)
-        .then(res => res.text())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          return res.text();
+        })
         .then(vttText => {
+          console.log('📄 VTT text received, length:', vttText.length);
           const parsed = parseVTT(vttText);
           setCaptions(parsed);
+          console.log('✅ Loaded captions:', parsed.length, 'cues');
+          if (parsed.length > 0) {
+            console.log('First cue:', parsed[0]);
+          }
         })
-        .catch(err => console.log('Could not load subtitles:', err));
+        .catch(err => {
+          console.error('❌ Could not load subtitles:', err);
+          setCaptions([]);
+        });
+    } else {
+      // Subtitle URL missing - backend should auto-generate on next fetch
+      console.log('ℹ️ Subtitle URL not available yet, will be auto-generated');
+      setCaptions([]);
     }
   }, [content.subtitleUrl]);
 
@@ -70,7 +86,17 @@ export function VideoCard({ content, isActive }) {
   // Update current caption based on video time
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !subtitlesEnabled || captions.length === 0) {
+    if (!video) {
+      setCurrentCaption('');
+      return;
+    }
+
+    if (!subtitlesEnabled) {
+      setCurrentCaption('');
+      return;
+    }
+
+    if (captions.length === 0) {
       setCurrentCaption('');
       return;
     }
@@ -80,29 +106,42 @@ export function VideoCard({ content, isActive }) {
       const activeCue = captions.find(
         cue => currentTime >= cue.startTime && currentTime <= cue.endTime
       );
-      setCurrentCaption(activeCue ? activeCue.text : '');
+      
+      const newCaption = activeCue ? activeCue.text : '';
+      if (newCaption !== currentCaption) {
+        setCurrentCaption(newCaption);
+        if (newCaption) {
+          console.log('📝 Caption:', newCaption, 'at', currentTime.toFixed(1) + 's');
+        }
+      }
     };
 
     video.addEventListener('timeupdate', updateCaption);
+    
+    // Initial update
+    updateCaption();
+    
     return () => video.removeEventListener('timeupdate', updateCaption);
-  }, [captions, subtitlesEnabled]);
+  }, [captions, subtitlesEnabled, currentCaption]);
 
   // Auto-play video when active with improved behavior
   useEffect(() => {
     if (videoRef.current) {
-      if (isActive) {
-        // Reset to beginning and auto-play when scrolled into view
+      if (isActive && !modalOpen) {
+        // Reset to beginning and auto-play when scrolled into view and modal is closed
         videoRef.current.currentTime = 0;
         videoRef.current
           .play()
           .catch((err) => console.log("Autoplay prevented:", err));
       } else {
-        // Pause and reset when scrolled away
+        // Pause and reset when scrolled away or modal is open
         videoRef.current.pause();
-        videoRef.current.currentTime = 0;
+        if (!isActive) {
+          videoRef.current.currentTime = 0;
+        }
       }
     }
-  }, [isActive]);
+  }, [isActive, modalOpen]);
 
   // Toggle subtitles on/off
   const toggleSubtitles = () => {
@@ -174,14 +213,21 @@ export function VideoCard({ content, isActive }) {
             />
           )}
 
-          {/* Custom Caption Overlay */}
+          {/* Custom Caption Overlay - From Subtitle Files */}
           {subtitlesEnabled && currentCaption && (
-            <div className="absolute bottom-16 left-0 right-0 flex justify-center px-4 pointer-events-none z-10">
-              <div className="bg-black/90 border-3 border-white px-4 py-2 max-w-[90%] shadow-brutal-sm">
-                <p className="text-white text-center font-bold text-sm leading-tight">
+            <div className="absolute bottom-32 left-0 right-0 flex justify-center px-4 pointer-events-none z-50">
+              <div className="bg-black border-4 border-white px-6 py-3 max-w-[85%] shadow-brutal-xl animate-fade-in">
+                <p className="text-white text-center font-black text-base leading-tight">
                   {currentCaption}
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Debug Caption Status */}
+          {subtitlesEnabled && (
+            <div className="absolute top-16 left-4 z-50 bg-green-500 border-2 border-white px-2 py-1 text-xs font-bold text-white">
+              CC ON ({captions.length} cues)
             </div>
           )}
 
@@ -282,13 +328,13 @@ export function VideoCard({ content, isActive }) {
             />
           </button>
 
-          {/* Subtitles Toggle - Browser-based Live Captions */}
+          {/* Subtitles Toggle - Shows Pre-generated Captions */}
           <button
             onClick={toggleSubtitles}
             className={`w-14 h-14 flex items-center justify-center border-4 border-black transition-all shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm ${
               subtitlesEnabled ? "bg-purple-300" : "bg-white"
             }`}
-            title={subtitlesEnabled ? "Hide Live Captions (CC ON)" : "Show Live Captions (CC OFF)"}
+            title={subtitlesEnabled ? `Hide Captions (CC ON) ${captions.length ? `- ${captions.length} cues loaded` : ''}` : "Show Captions (CC OFF)"}
           >
             <Subtitles
               className="w-7 h-7"

@@ -9,9 +9,9 @@ import { LocationModal } from "@/components/modals/location-modal";
 import { Loader2, Sparkles, X, Heart, Stars } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-function ContentItem({ item, isActive }) {
+function ContentItem({ item, isActive, modalOpen }) {
   if (item.type === 'video') {
-    return <VideoCard content={item} isActive={isActive} />;
+    return <VideoCard content={item} isActive={isActive} modalOpen={modalOpen} />;
   } else if (item.type === 'quiz') {
     return <QuizCard content={item} isActive={isActive} />;
   } else if (item.type === 'challenge') {
@@ -248,7 +248,8 @@ export default function FeedPage() {
           >
             <ContentItem 
               item={item} 
-              isActive={activeIndex === index} 
+              isActive={activeIndex === index}
+              modalOpen={showLocationModal}
             />
             
             {/* Personalized popup overlay */}

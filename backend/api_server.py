@@ -228,6 +228,57 @@ async def health_check():
     }
 
 
+def generate_generic_subtitle(video_filename: str) -> str:
+    """
+    Generate a generic subtitle file for a video without script
+    Returns the path to the created subtitle file
+    """
+    subtitle_filename = video_filename.replace('.mp4', '.vtt')
+    subtitle_path = os.path.join(SUBTITLES_DIR, subtitle_filename)
+    
+    # Generic sustainability message
+    generic_text = """
+    Every small action counts towards a sustainable future. 
+    Climate change affects us all, but together we can make a difference. 
+    Your daily choices matter. From the coffee you drink to the places you walk. 
+    Join us in building a more sustainable world. 
+    Learn, act, and inspire others to care for our planet.
+    The time to act is now.
+    """.strip()
+    
+    # Split into sentences
+    sentences = [s.strip() for s in generic_text.split('.') if s.strip()]
+    
+    # Generate WebVTT content
+    vtt_content = "WEBVTT\n\n"
+    
+    current_time = 0.0
+    duration_per_sentence = 5.0  # 5 seconds per sentence
+    
+    for idx, sentence in enumerate(sentences):
+        if not sentence:
+            continue
+            
+        start_time = current_time
+        end_time = current_time + duration_per_sentence
+        
+        start_str = format_vtt_timestamp(start_time)
+        end_str = format_vtt_timestamp(end_time)
+        
+        vtt_content += f"{idx + 1}\n"
+        vtt_content += f"{start_str} --> {end_str}\n"
+        vtt_content += f"{sentence}.\n\n"
+        
+        current_time = end_time
+    
+    # Write subtitle file
+    with open(subtitle_path, 'w', encoding='utf-8') as f:
+        f.write(vtt_content)
+    
+    print(f"✨ Auto-generated subtitle: {subtitle_path}")
+    return subtitle_path
+
+
 @app.get("/api/videos")
 async def list_videos():
     """List all generated videos with metadata"""
@@ -246,9 +297,19 @@ async def list_videos():
             except:
                 created_at = datetime.fromtimestamp(file_stat.st_ctime).isoformat()
             
-            # Check if subtitle file exists
+            # Check if subtitle file exists, if not generate it automatically
             subtitle_filename = filename.replace('.mp4', '.vtt')
-            has_subtitles = os.path.exists(os.path.join(SUBTITLES_DIR, subtitle_filename))
+            subtitle_path = os.path.join(SUBTITLES_DIR, subtitle_filename)
+            
+            if not os.path.exists(subtitle_path):
+                # Auto-generate subtitle on-demand
+                try:
+                    generate_generic_subtitle(filename)
+                except Exception as e:
+                    print(f"⚠️ Failed to auto-generate subtitle for {filename}: {e}")
+            
+            # Now subtitle should exist
+            has_subtitles = os.path.exists(subtitle_path)
             
             videos.append({
                 "id": filename.replace('.mp4', ''),
