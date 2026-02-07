@@ -280,42 +280,110 @@ const generateFeedContent = async () => {
         { id: "d", text: "Energy consumption", emoji: "⚡" },
       ],
     },
+    {
+      title: "Most effective way to reduce waste?",
+      desc: "Pick the best sustainable practice",
+      icon: "♻️",
+      options: [
+        { id: "a", text: "Reduce & Reuse", emoji: "🔄" },
+        { id: "b", text: "Just Recycle", emoji: "♻️" },
+        { id: "c", text: "Burn Trash", emoji: "🔥" },
+        { id: "d", text: "Landfill Only", emoji: "🗑️" },
+      ],
+    },
+  ];
+
+  const challenges = [
+    {
+      title: "Plant a Tree Challenge",
+      desc: "Plant one tree and share your contribution to a greener planet",
+      icon: "🌳",
+      points: 100,
+    },
+    {
+      title: "Zero Waste Day",
+      desc: "Go one full day without generating any plastic waste",
+      icon: "♻️",
+      points: 50,
+    },
+    {
+      title: "Carpool to Work",
+      desc: "Share a ride with colleagues and reduce carbon emissions",
+      icon: "🚗",
+      points: 30,
+    },
+    {
+      title: "Clean Local Park",
+      desc: "Pick up litter from your neighborhood park for 1 hour",
+      icon: "🧹",
+      points: 75,
+    },
+    {
+      title: "Composting Starter",
+      desc: "Start your own compost bin at home",
+      icon: "🌱",
+      points: 60,
+    },
+    {
+      title: "Energy Free Hour",
+      desc: "Switch off all electronics for one hour during peak time",
+      icon: "💡",
+      points: 40,
+    },
   ];
 
   const contents = [];
 
   // If we have backend videos, use them; otherwise fall back to mock
   if (backendVideos.length > 0) {
-    // Convert backend videos to feed format
-    backendVideos.forEach((video, index) => {
-      contents.push({
-        id: video.id,
-        type: "video",
-        title: video.title || "AI Generated Sustainability Story",
-        description: "Empathetic story about environmental and social impact",
-        videoUrl: `${BACKEND_API}${video.url}`,
-        thumbnail: `https://picsum.photos/seed/${video.id}/1920/1080`,
-        creator: "Arogya Sathi AI",
-        likes: Math.floor(Math.random() * 5000) + 500,
-        comments: Math.floor(Math.random() * 200) + 20,
-        location: {
-          name: "India",
-          state: "Generated with Real Weather Data",
-        },
-        category: "ai-generated",
-        year: new Date(video.created_at).getFullYear(),
-      });
+    // Pattern: 2 videos, 1 quiz, 2 videos, 1 challenge (repeats)
+    const pattern = ["video", "video", "quiz", "video", "video", "challenge"];
+    let videoIndex = 0;
+    let quizIndex = 0;
+    let challengeIndex = 0;
 
-      // Add quiz after every 2 videos
-      if ((index + 1) % 2 === 0 && index < backendVideos.length - 1) {
-        const quiz = quizzes[(index / 2) % quizzes.length];
+    // Generate feed following the pattern
+    for (let i = 0; i < Math.min(backendVideos.length * 2, 30); i++) {
+      const itemType = pattern[i % pattern.length];
+
+      if (itemType === "video" && videoIndex < backendVideos.length) {
+        const video = backendVideos[videoIndex];
         contents.push({
-          id: `quiz-${index}`,
+          id: video.id,
+          type: "video",
+          title: video.title || "AI Generated Sustainability Story",
+          description: "Empathetic story about environmental and social impact",
+          videoUrl: `${BACKEND_API}${video.url}`,
+          thumbnail: `https://picsum.photos/seed/${video.id}/1920/1080`,
+          creator: "Arogya Sathi AI",
+          likes: Math.floor(Math.random() * 5000) + 500,
+          comments: Math.floor(Math.random() * 200) + 20,
+          location: {
+            name: "India",
+            state: "Generated with Real Weather Data",
+          },
+          category: "ai-generated",
+          year: new Date(video.created_at).getFullYear(),
+        });
+        videoIndex++;
+      } else if (itemType === "quiz") {
+        const quiz = quizzes[quizIndex % quizzes.length];
+        contents.push({
+          id: `quiz-${quizIndex}`,
           type: "quiz",
           ...quiz,
         });
+        quizIndex++;
+      } else if (itemType === "challenge") {
+        const challenge = challenges[challengeIndex % challenges.length];
+        contents.push({
+          id: `challenge-${challengeIndex}`,
+          type: "challenge",
+          ...challenge,
+        });
+        challengeIndex++;
       }
-    });
+    }
   } else {
     // Fallback to mock content if no backend videos
     console.log("No backend videos found, using mock content");
