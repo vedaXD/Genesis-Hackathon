@@ -215,7 +215,7 @@ export function VideoCard({ content, isActive, modalOpen = false }) {
 
           {/* Custom Caption Overlay - From Subtitle Files */}
           {subtitlesEnabled && currentCaption && (
-            <div className="absolute bottom-32 left-0 right-0 flex justify-center px-4 pointer-events-none z-50">
+            <div className="absolute bottom-20 left-0 right-0 flex justify-center px-4 pointer-events-none z-50">
               <div className="bg-black border-4 border-white px-6 py-3 max-w-[85%] shadow-brutal-xl animate-fade-in">
                 <p className="text-white text-center font-black text-base leading-tight">
                   {currentCaption}
@@ -232,7 +232,7 @@ export function VideoCard({ content, isActive, modalOpen = false }) {
           )}
 
           {/* Cartoon overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 pointer-events-none" />
 
           {/* Personalized Badge - Top Right */}
           {content.isPersonalized && (
@@ -256,40 +256,6 @@ export function VideoCard({ content, isActive, modalOpen = false }) {
               <span className="text-xs font-bold text-gray-600">
                 • {content.year}
               </span>
-            </div>
-          </div>
-
-          {/* Bottom Content Area */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-            <div className="bg-white/95 backdrop-blur-sm border-4 border-black p-5 shadow-brutal mb-4">
-              {/* Creator */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 border-3 border-black flex items-center justify-center font-black text-lg">
-                  🌱
-                </div>
-                <span className="font-black text-base">@{content.creator}</span>
-                <span className="px-3 py-1 bg-yellow-300 border-2 border-black text-xs font-black uppercase">
-                  #{content.category}
-                </span>
-              </div>
-
-              {/* Title & Description */}
-              <h2 className="text-2xl font-black mb-2 leading-tight font-comic">
-                {content.title}
-              </h2>
-              <p className="text-sm font-bold text-gray-700 mb-3">
-                {content.description}
-              </p>
-
-              {/* Stats */}
-              <div className="flex gap-3">
-                <div className="bg-pink-200 border-3 border-black px-3 py-1 text-sm font-black">
-                  ❤️ {liked ? content.likes + 1 : content.likes}
-                </div>
-                <div className="bg-blue-200 border-3 border-black px-3 py-1 text-sm font-black">
-                  💬 {content.comments}
-                </div>
-              </div>
             </div>
           </div>
         </div>
